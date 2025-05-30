@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dispositivos</title>
+</head>
+<body>
+    <div class="container">
+        {% for dispositivo in dispositivos %}
+            <div class="dispositivo">
+                <h2>{{ dispositivo.nome }} - {{ dispositivo.local }}</h2>
+                
+            </div>
+        {% endfor %}
+        <a href="adicionar_dispositivo" class="botao">Adicionar Novo Dispositivo</a>
+    </div>
+</body>
+</html>
