@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask (__name__)
+app.secret_key = 'uma_chave_muito_secreta_aqui'
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dispositivos.db'
 
@@ -73,10 +75,14 @@ def show_dispositivos():
 @app.route('/adicionar_dispositivo', methods=["GET",'POST'])
 def adicionar_dispositivo():
     if request.method == "POST":
+        ip = request.form["ip"]
+        if Dispositivo.query.filter_by(ip=ip).first():
+            flash("Já existe um dispositivo com esse IP!", "error")
+            return render_template("adicionar_dispositivo.html")
         novo_dispositivo = Dispositivo(
             nome=request.form["nome"],
             local=request.form["local"],
-            ip=request.form["ip"],
+            ip=ip,
             # status=request.form["status"],
             # mensagem=request.form["mensagem"],
             ultima_atualizacao=datetime.now(),
