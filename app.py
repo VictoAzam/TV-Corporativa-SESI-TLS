@@ -35,8 +35,8 @@ class Evento(db.Model):
 class Mensagem_Temporaria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dispositivo_id = db.Column(db.Integer, db.ForeignKey('dispositivo.id'), nullable=False)
-    mensagem = db.Column(db.String(250), nullable=False)
-    link = db.Column(db.String(250), nullable=False)
+    mensagem = db.Column(db.String(250), nullable=True)
+    link = db.Column(db.String(250), nullable=True)
     prioridade = db.Column(db.String(20), nullable=False)
     data_inicio= db.Column(db.DateTime, default=datetime.now)
     data_fim = db.Column(db.DateTime)
