@@ -69,7 +69,7 @@ with app.app_context():
 
 with app.app_context():
     nova_noticia = Noticia(
-        dispositivo_id=1,  # Use an existing dispositivo_id
+        dispositivo_id=1,
         conteudo="Esta é uma notícia de teste para o painel.",
         data_inicio=datetime.now(),
         data_fim=None,
@@ -89,11 +89,11 @@ with app.app_context():
     
 with app.app_context():
     novo_evento = Evento(
-        dispositivo_id=1,  # Use um ID válido
+        dispositivo_id=1,
         titulo="Evento com Imagem",
         descricao="Este evento tem uma imagem separada.",
-        link="https://exemplo.com",  # ou outro link relevante
-        imagem="/static/images/partiuif.png",  # Caminho da imagem
+        link="https://www.ifms.edu.br/noticias/2025/aberto-prazo-de-matriculas-para-selecionados-no-partiu-if",
+        imagem="/static/images/partiuif.png",
         status="ativo",
         data_inicio=datetime.now(),
         data_fim=None
