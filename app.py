@@ -93,5 +93,9 @@ def adicionar_dispositivo():
         return redirect("/")
     return render_template("adicionar_dispositivo.html")
 
+@app.route('/aviso', methods=["GET"])
+def mostrarAviso():
+    return render_template("aviso.html")
+
 if __name__ == '__main__':
     app.run(debug=True)

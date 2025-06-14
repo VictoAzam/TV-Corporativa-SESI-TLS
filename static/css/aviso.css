@@ -1,0 +1,80 @@
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    *,
+    *::before,
+    *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    ul,
+    ol {
+        list-style: none;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    input,
+    textarea,
+    button,
+    select {
+        border: none;
+        outline: none;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        line-height: 1.5;
+        background-color: #fff; /* Cor de fundo padrão */
+    }
+
+    .container {
+        width: 100vw; /* 100% da largura da tela */
+        height: 100vh; /* 100% da altura da tela */
+        display: flex;
+        justify-content: center; /* Centraliza horizontalmente */
+        align-items: center; /* Centraliza verticalmente */
+        box-shadow: 2px 2px 5px black;
+    }
+
+    /* Container com o gradiente, largura e altura de 2/3 da tela */
+    .content {
+        width: 66.6667vw; /* 2/3 da largura da tela */
+        height: 66.6667vh; /* 2/3 da altura da tela */
+        background: linear-gradient(to bottom, #16A34A, #15803D); /* Gradiente de verde */
+        border-radius: 1rem; /* Bordas arredondadas (similar ao `rounded-2xl`) */
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Centraliza o conteúdo verticalmente dentro */
+        align-items: center; /* Centraliza o conteúdo horizontalmente dentro */
+    }
+
+    /* Estilo para o título com a fonte grande */
+    .title span {
+        font-size: 100px; /* Tamanho de fonte igual ao `text-[40px]` */
+        font-weight: bold;
+        color: white;
+    }
+
+    /* Estilo para a informação */
+    .info span {
+        font-size: 60px;
+        color: white;
+    }
