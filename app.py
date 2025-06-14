@@ -1,37 +1,71 @@
+
+import json
+import os
+from apscheduler.schedulers.background import BackgroundScheduler
+
 from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
- 
 
 app = Flask(__name__)
 app.secret_key = 'uma_chave_muito_secreta_aqui'
+
+
 api_key = '4cd224af1c46c58cf99cdbd798e13931'
 city = 'TRÊS-LAGOAS,BR'
+CACHE_FILE = 'clima.json' 
 
-@app.route('/Clima')
-def index():
+def fetch_and_cache_weather():
+    
+    print("--------------------------------------------------")
+    print(f"AGENDADOR: Buscando dados do clima para {city}...")
+    
     url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric&lang=pt_br'
     
     try:
         response = requests.get(url)
-        response.raise_for_status() 
-        
+        response.raise_for_status()
         dados_clima = response.json()
         
+        with open(CACHE_FILE, 'w', encoding='utf-8') as f:
+            json.dump(dados_clima, f, ensure_ascii=False, indent=4)
+            
+        print("AGENDADOR: Dados do clima salvos com sucesso no cache!")
+
+    except requests.exceptions.RequestException as e:
+        print(f"!!!!!!!!!! AGENDADOR: Erro ao chamar a API: {e} !!!!!!!!!!!")
+    
+    print("--------------------------------------------------")
+
+
+
+@app.route('/Clima')
+def index_clima(): 
+   
+    if not os.path.exists(CACHE_FILE):
+        erro_msg = "Dados do clima ainda não disponíveis. A primeira atualização agendada ainda não ocorreu."
+        return render_template('index.html', erro=erro_msg)
+    
+    try:
+        with open(CACHE_FILE, 'r', encoding='utf-8') as f:
+            dados_clima = json.load(f)
+        
         clima = {
-            'cidade': city.split(',')[0],  # BEGIN: Fixed variable name
+            'cidade': city.split(',')[0],
             'temperatura': f"{dados_clima['main']['temp']:.0f}", 
             'condicao': dados_clima['weather'][0]['description'].capitalize(), 
             'umidade': dados_clima['main']['humidity'],
             'icone': dados_clima['weather'][0]['icon'],
         }
         
-        return render_template('index.html', clima=clima)
+        return render_template('index.html', clima=clima) 
 
-    except requests.exceptions.RequestException as e:
-        print(f"Erro ao chamar a API: {e}")
-        erro_msg = "Não foi possível obter os dados do clima. Verifique sua chave de API e conexão."
+    except (IOError, json.JSONDecodeError) as e:
+        print(f"Erro ao ler ou decodificar o arquivo de cache: {e}")
+        erro_msg = "Ocorreu um erro ao carregar os dados do clima. O arquivo pode estar corrompido."
         return render_template('index.html', erro=erro_msg)
+
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dispositivos.db'
 db = SQLAlchemy(app)
@@ -53,7 +87,6 @@ class Evento(db.Model):
     status = db.Column(db.String(20), nullable=False)
     data_inicio = db.Column(db.DateTime, default=datetime.now)
     data_fim = db.Column(db.DateTime)
-    
     dispositivo = db.relationship('Dispositivo', backref=db.backref('eventos', lazy=True))
 
 class Mensagem_Temporaria(db.Model):
@@ -65,7 +98,6 @@ class Mensagem_Temporaria(db.Model):
     data_inicio = db.Column(db.DateTime, default=datetime.now)
     data_fim = db.Column(db.DateTime)
     hora_fim = db.Column(db.Time)
-    
     dispositivo = db.relationship('Dispositivo', backref=db.backref('mensagens_temporarias', lazy=True))
 
 class Noticia(db.Model):
@@ -76,7 +108,6 @@ class Noticia(db.Model):
     data_fim = db.Column(db.DateTime)
     prioridade = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(20), nullable=False)
-    
     dispositivo = db.relationship('Dispositivo', backref=db.backref('noticias', lazy=True))
 
 class Usuario(db.Model):
@@ -113,5 +144,22 @@ def adicionar_dispositivo():
         return redirect("/")
     return render_template("adicionar_dispositivo.html")
 
+
+horarios_agendados = [
+    (6, 10), (8, 0), (12, 0), (13, 0), (15, 0),
+    (17, 0), (18, 0), (19, 0), (21, 0), (22, 0), (22, 50)
+]
+
+scheduler = BackgroundScheduler(daemon=True)
+
+for hora, minuto in horarios_agendados:
+    scheduler.add_job(fetch_and_cache_weather, 'cron', hour=hora, minute=minuto)
+
+scheduler.start()
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    print("Executando a busca inicial de clima antes de iniciar o servidor...")
+    fetch_and_cache_weather()
+
+    app.run(debug=True, use_reloader=False)
