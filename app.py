@@ -196,6 +196,9 @@ for hora, minuto in horarios_agendados:
 
 scheduler.start()
 
+@app.route('/aviso', methods=["GET"])
+def mostrarAviso():
+    return render_template("aviso.html")
 
 if __name__ == '__main__':
     print("Executando a busca inicial de clima antes de iniciar o servidor...")
