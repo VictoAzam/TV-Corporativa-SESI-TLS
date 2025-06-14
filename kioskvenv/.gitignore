@@ -1,0 +1,36 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+env/
+venv/
+.kioskvenv/
+.kioskvenv*/
+.kioskvenv/
+.kioskvenv*/ 
+.kioskvenv/
+*.env
+*.venv
+
+# VSCode
+.vscode/
+
+# SQLite database
+*.db
+*.sqlite3
+
+# Flask
+instance/
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Backup files
+*~
+*.bak

@@ -26,6 +26,7 @@ class Evento(db.Model):
     titulo = db.Column(db.String(50), nullable=False)
     descricao = db.Column(db.String(250), nullable=False)
     link = db.Column(db.String(250))
+    imagem = db.Column(db.String(250))
     status = db.Column(db.String(20), nullable=False)
     data_inicio = db.Column(db.DateTime, default=datetime.now)
     data_fim = db.Column(db.DateTime)
@@ -50,7 +51,6 @@ class Noticia(db.Model):
     conteudo = db.Column(db.String(250), nullable=False)
     data_inicio= db.Column(db.DateTime, default=datetime.now)
     data_fim = db.Column(db.DateTime)
-    prioridade = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(20), nullable=False)
     
     dispositivo = db.relationship('Dispositivo', backref=db.backref('noticias', lazy=True))
@@ -64,10 +64,50 @@ class Usuario(db.Model):
 
   
 with app.app_context():
-    #db.drop_all() #para limpar o banco(so nos testes)
+    db.drop_all() #para limpar o banco(so nos testes)
     db.create_all()
 
-@app.route('/')
+with app.app_context():
+    nova_noticia = Noticia(
+        dispositivo_id=1,  # Use an existing dispositivo_id
+        conteudo="Esta é uma notícia de teste para o painel.",
+        data_inicio=datetime.now(),
+        data_fim=None,
+        status="ativa"
+    )
+    db.session.add(nova_noticia)
+    db.session.commit()
+
+with app.app_context():
+    novo_dispositivo = Dispositivo(
+        ip="192.168.0.10",
+        nome="TV Sala",
+        local="Sala Principal"
+    )
+    db.session.add(novo_dispositivo)
+    db.session.commit()
+    
+with app.app_context():
+    novo_evento = Evento(
+        dispositivo_id=1,  # Use um ID válido
+        titulo="Evento com Imagem",
+        descricao="Este evento tem uma imagem separada.",
+        link="https://exemplo.com",  # ou outro link relevante
+        imagem="/static/images/partiuif.png",  # Caminho da imagem
+        status="ativo",
+        data_inicio=datetime.now(),
+        data_fim=None
+    )
+    db.session.add(novo_evento)
+    db.session.commit()
+    
+@app.route("/")
+def show_painel():
+    noticia = Noticia.query.all()
+    evento = Evento.query.all()
+    return render_template("painel.html", noticia=noticia, evento = evento)
+
+@app.route('/dispositivos')
 def show_dispositivos():
     dispositivos = Dispositivo.query.all()
     return render_template('dispositivos.html', dispositivos=dispositivos)
