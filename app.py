@@ -1,8 +1,7 @@
-
 import json
 import os
-from apscheduler.schedulers.background import BackgroundScheduler
 import requests
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
