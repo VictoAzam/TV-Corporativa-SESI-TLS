@@ -406,7 +406,7 @@ form {
 /* Input customizado para upload de imagem */
 .upload-area {
     width: 100%;
-    height: 350px;
+    height: 285px;
     border-radius: 12px;
     display: flex;
     flex-direction: column;
@@ -467,7 +467,7 @@ form {
 .upload-area.has-image {
     padding: 0;
     background: transparent;
-    height: 60px;
+    height: 350px;
     border: 1px solid #ccc;
     opacity: 0.6;
     transition: all 0.3s ease;
@@ -675,11 +675,6 @@ form {
     margin-top: 10px;
     background: #f9f9f9;
 }
-
-.upload-area.has-image {
-    height: auto;
-}
-
 
 .form-group .upload-area.has-image::after {
     content: "Clique para trocar imagem";
