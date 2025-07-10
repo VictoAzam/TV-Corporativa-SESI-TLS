@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clima.css') }}" />
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Definir variáveis globais ANTES de carregar o script principal -->
+    <script>
+        window.SHOW_AVISO = {{ show_aviso|tojson|default(false) }};
+        {% if evento and evento|length > 0 and evento[0].link %}
+            window.eventoLink = "{{ evento[0].link }}";
+        {% endif %}
+        {% if evento and evento|length > 0 and evento[0].imagem %}
+            window.eventoImagem = "{{ evento[0].imagem }}";
+        {% endif %}
+    </script>
+    
+    <!-- Carregar o script principal apenas uma vez -->
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <title>Previsão do Tempo</title>
+</head>
+<body>
+    {% if clima %}
+        <div class="cidade">
+            <span>{{ clima.cidade }}-MS</span>
+        </div>
+
+        <div class="parent">
+            <div class="card-com-info">
+                <div class="div1">
+                    <img src="/static/images/sun-dim.png" alt="">
+                </div>
+                <div class="info">
+                    <span>{{ clima.temperatura }}°C</span>
+                </div>
+            </div>
+
+            <div class="card-com-info">
+                <div class="div2">
+                    <img src="/static/images/icon-noite-chuva-branco-300x300.png" alt="">
+                </div>
+                <div class="info">
+                    <span>{{ clima.chance_chuva }}%</span>
+                </div>
+            </div>
+
+            <div class="card-com-info">
+                <div class="div3">
+                    <img src="/static/images/wind.png" alt="">
+                </div>
+                <div class="info">
+                    <span>{{ clima.vento }} km/h</span>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="erro-container">
+            <h1>Erro ao Carregar os Dados</h1>
+            <p>{{ erro }}</p>
+        </div>
+    {% endif %}
+
+    <div class="container painel">
+        <div class="relogio">
+            <h1 id="data"></h1>
+            <h1 id="hora"></h1>
+        </div>
+        <div class="descricao"></div>
+       
+    </div>
+
+    <footer>
+        <div class="noticia-rapida">
+            {% for n in noticia %}
+                <span class="noticia-text">{{ n.conteudo }}</span>
+            {% endfor %}
+        </div>
+    </footer>
+</body>
+</html>

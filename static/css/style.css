@@ -1,37 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
 
+html {
+    font-size: clamp(14px, 1.2vw, 22px);
+    color: #333;
+}
+
 body {
     margin: 0;
     padding: 0;
     font-family: 'Ubuntu', sans-serif;
+    background-color: #f5f5f5;
 }
 
 .container {
-    width: 100vw;
-    height: 100vh;
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    padding: 2rem;
     box-sizing: border-box;
+    position: relative;
 }
 
 .lista {
     width: 100%;
-    height: auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 1.25rem;
 }
 
 .dispositivo {
     width: 100%;
-    height: 80px;
+    min-height: 80px;
     display: flex;
-    justify-content: start;
+    justify-content: flex-start;
     padding-left: 20px;
     align-items: center;
     background-color: #D2CCCC;
@@ -46,34 +50,18 @@ body {
     width: 100%;
 }
 
-.footer {
-    width: 100%;
-    height: 60px;
-    display: flex;
-    justify-content: end;
-    align-items: center;
-    padding-right: 20px;
-}
-
-footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100vw;
-    z-index: 100;
-}
-
 .new-device {
-    width: auto;
     height: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: #D2CCCC;
-    padding: 0px 10px 0px 10px;
+    padding: 0px 10px;
     cursor: pointer;
     text-decoration: none;
     color: black;
+    border-radius: 5px;
+    font-size: clamp(1rem, 2vw, 1.2rem);
 }
 
 .new-device:hover {
@@ -87,6 +75,10 @@ footer {
     justify-content: center;
     align-items: center;
     background-color: #D2CCCC;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    text-align: center;
+    padding: 0 1rem;
+    box-sizing: border-box;
 }
 
 .content {
@@ -96,45 +88,84 @@ footer {
     align-items: center;
 }
 
-
 form {
-    width: auto;
+    width: 100%;
+    max-width: 500px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    font-size: 22px;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    padding: 1rem;
+    box-sizing: border-box;
 }
 
 .form-group {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
 input {
-    width: 450px;
+    width: 100%;
     padding: 8px;
-    font-size: 16px;
+    font-size: 1rem;
     background-color: #D2CCCC;
     border: none;
+    border-radius: 4px;
+    font-family: 'Ubuntu', sans-serif;
 }
 
+
 .btn {
-    height: auto;
-    width: auto;
-    padding: 5px 10px 5px 10px;
+    padding: 10px 20px;
     background-color: #D2CCCC;
     border: none;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 1rem;
     text-decoration: none;
     color: #000;
+    border-radius: 5px;
 }
 
 .btn:hover {
-    background-color: #C0BABA;
+    background-color: #28A745;
 }
+
+.floating {
+    position: fixed;
+    z-index: 1000;
+    background: #469C42;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease;
+}
+
+.floating:hover {
+    background: #218838;
+}
+
+.left.floating {
+    left: 2rem;
+    right: auto;
+}
+
+.right.floating {
+    right: 2rem;
+    left: auto;
+}
+
+.bottom.floating {
+    bottom: 2rem;
+}
+
+.top.floating {
+    top: 1rem;
+}
+
 
 .flash-messages {
     list-style: none;
@@ -153,22 +184,71 @@ input {
     position: relative;
     box-sizing: border-box;
     min-height: 100vh;
+    width: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-image 0.5s ease-in-out;
+    padding: 0;
 }
+
+#midia-container {
+    width: 100vw;
+    height: 100vh;
+    min-width: 100vw;
+    background: transparent;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    z-index: 0;
+}
+
+/* Overlay para mensagens de texto sobre a imagem */
+.mensagem-overlay {
+    position: absolute;
+    bottom: 150px; /* Acima do footer */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    max-width: 80%;
+    text-align: center;
+}
+
+.mensagem-texto {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.mensagem-texto p {
+    font-size: 1.8em;
+    margin: 0;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
 
 .relogio {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 20px;
+    left: 20px;
     z-index: 10;
-    margin: 20px;
-    height: 200px;
-    width: 400px;
+    height: auto;
+    width: 420px;
     background: rgba(0, 0, 0, 0.3);
-    border-radius: 50px;
+    border-radius: 25px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 1rem;
+    text-align: center;
 }
 
 #data {
@@ -179,41 +259,13 @@ input {
 #hora {
     margin: 0;
     color: white;
-    font-size: 72px;
-}
-
-.noticia {
-    position: relative;
-    width: 100vw;
-    overflow: hidden;
-    background: #222;
-    color: #fff;
-    height: 40px;
-    display: flex;
-    align-items: center;
-}
-
-.noticia-text {
-    display: inline-block;
-    white-space: nowrap;
-    padding-left: 100vw;
-    animation: marquee 20s linear infinite;
-    font-size: 1.2em;
-}
-
-@keyframes marquee {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
+    font-size: clamp(3rem, 6vw, 4.5rem);
 }
 
 #qrcode {
     position: fixed;
     right: 30px;
-    bottom: 60px;
+    bottom: 125px;
     z-index: 200;
     border-radius: 16px;
     background: #fff;
@@ -221,3 +273,252 @@ input {
     box-shadow: 0 2px 12px rgba(0,0,0,0.15);
 }
 
+/* Footer com notícia */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 111px;
+    background: linear-gradient(90deg, rgba(157, 255, 0, 0.67) 0%, rgba(0, 0, 0, 0) 100%), #28A745;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+.noticia-rapida {
+  font-size: clamp(2rem, 4vh, 3.5rem);
+  font-weight: 500;
+  background-color: #000;
+  color: #fff;
+  padding: 0.5rem 2.5rem;
+  white-space: nowrap;
+  display: inline-block;
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  margin-left: 100vw;
+}
+
+@media (max-width: 950px) {
+    body {
+        justify-content: flex-start;
+        padding-top: 4rem;
+    }
+
+
+    .relogio {
+        position: static;
+        width: 90%;
+        margin-top: 2rem;
+    }
+}
+
+/* Modal para mensagens programadas */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.mensagem-programada {
+    margin-bottom: 20px;
+}
+
+.imagem-mensagem {
+    max-width: 100%;
+    max-height: 400px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+}
+
+.texto-mensagem {
+    font-size: 1.5em;
+    color: #333;
+    margin: 15px 0;
+    line-height: 1.4;
+}
+
+.btn-fechar {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-top: 15px;
+}
+
+.btn-fechar:hover {
+    background-color: #0056b3;
+}
+
+#bg-video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: 0;
+    pointer-events: none;
+}
+.painel > *:not(#bg-video):not(.relogio) {
+    position: relative;
+    z-index: 1;
+}
+
+.login-title {
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.login-form {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important;
+
+    input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.link {
+    width: 100vw;
+}
+
+#descricao-container {
+    position: absolute;
+    bottom: 125px;
+    left: 30px;
+    z-index: 10;
+    height: auto;
+    max-width: 600px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+#descricao-container h2 {
+    color: white;
+    margin: 0 0 0.5rem 0;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 500;
+}
+
+#descricao-container p {
+    color: white;
+    margin: 0;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    line-height: 1.4;
+    opacity: 0.9;
+}
+
+.green {
+    background: #28a745;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.green:hover {
+    background: #218838;
+}
+
+.blue {
+    background-color: #007bff;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.blue:hover {
+    background-color: #0056b3;
+}
+
+.round {
+    border-radius: 50% !important;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+        font-size: 2.5rem;
+}
+
+.edit-button {
+    display: inline-flex;
+    color: #333;
+    text-decoration: none;
+    font-size: 1.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+#login-button {
+    width: auto;
+    padding: 10px 30px 10px 30px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: center;
+    font-size: 1.5rem;
+}

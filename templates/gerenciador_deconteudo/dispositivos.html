@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dispositivos.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <title>Gerenciar Dispositivos - Sistema de TVs</title>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Dispositivos Cadastrados</h1>
+            <a href="{{ url_for('admin') }}" class="btn left top floating">
+                Adicionar Conteúdo
+            </a>
+            <a href="{{ url_for('adicionar_dispositivo') }}" class="btn right bottom floating round">
+                <i class='bx bx-plus'></i>
+            </a>
+        </div>
+
+        <div class="dispositivos-grid">    
+                {% for dispositivo in dispositivos %}
+                <div class="dispositivo-card {{ dispositivo.status }}">
+                    <div class="dispositivo-header status-badge status-{{ dispositivo.status }}">
+                        <h3>{{ dispositivo.nome }}</h3>
+
+                        <a href="{{ url_for('editar_dispositivo', dispositivo_id=dispositivo.id) }}" 
+                           class="edit-button">
+                            <i class='bx bxs-edit'></i>
+                        </a>
+
+                         <!-- <span>{{ dispositivo.status|title }}</span> -->
+                    </div>
+
+                    <div class="dispositivo-info">
+                        <div class="info-row">
+                            <strong>Local:</strong> {{ dispositivo.local }}
+                        </div>
+                        <div class="info-row">
+                            <strong>IP:</strong> {{ dispositivo.ip }}
+                        </div>
+                        {% if dispositivo.observacoes %}
+                        <div class="info-row">
+                            <strong>Observações:</strong> {{ dispositivo.observacoes }}
+                        </div>
+                        {% endif %}
+                        <div class="info-row">
+                            <strong>Última Atualização:</strong> 
+                            {{ dispositivo.ultima_atualizacao.strftime('%d/%m/%Y %H:%M') if dispositivo.ultima_atualizacao else 'N/A' }}
+                        </div>
+                        {% if dispositivo.ultima_conexao %}
+                        <div class="info-row">
+                            <strong>Última Conexão:</strong> 
+                            {{ dispositivo.ultima_conexao.strftime('%d/%m/%Y %H:%M') }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="dispositivo-actions">
+                        {% if dispositivo.status == 'ativo' %}
+                        <a href="{{ url_for('enviar_conteudo', dispositivo_id=dispositivo.id) }}" 
+                           class="btn btn-primary btn-small gray">
+                            Recarregar
+                        </a>
+                        {% else %}
+                        <button type="button" 
+                                class="btn btn-disabled btn-small gray" 
+                                disabled 
+                                title="Dispositivo está {{ dispositivo.status }}. Ative-o primeiro.">
+                            Recarregar
+                        </button>
+                        {% endif %}
+                        <button type="button" 
+                                class="btn btn-test btn-small" 
+                                onclick="testarDispositivo('{{ dispositivo.ip }}', this)">
+                            Conexão
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if dispositivos %}
+                <!-- Alertas de problemas -->
+                {% set dispositivos_inativos = dispositivos | selectattr('status', 'ne', 'ativo') | list %}
+                {% if dispositivos_inativos %}
+                <div class="alert-banner">
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Atenção:</strong> 
+                        {{ dispositivos_inativos | length }} dispositivo(s) não está(ão) ativo(s).
+                        <details>
+                            <summary>Ver detalhes</summary>
+                            <ul>
+                                {% for disp in dispositivos_inativos %}
+                                <li>
+                                    <strong>{{ disp.nome }}</strong> ({{ disp.ip }}) - Status: {{ disp.status | title }}
+                                    <a href="{{ url_for('editar_dispositivo', dispositivo_id=disp.id) }}" 
+                                       class="btn btn-small btn-secondary">Editar</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                    </div>
+                </div>
+                {% endif %}     
+            {% else %}
+                <div class="empty-state">
+                    <h3>Nenhum dispositivo cadastrado</h3>
+                    <p>Comece adicionando seu primeiro dispositivo.</p>
+                    <a href="{{ url_for('adicionar_dispositivo') }}" class="btn btn-primary">
+                        + Adicionar Primeiro Dispositivo
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

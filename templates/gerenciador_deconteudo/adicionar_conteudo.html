@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Conteúdo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/add_content.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    <!-- Mensagens Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-messages {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="header">
+        <h1>Gerenciar Conteúdo das TVs</h1>
+    </div>
+    <div class="exemplo-toggle-container">
+        <button type="button" id="toggle-exemplo" class="btn floating round bottom right">
+            <i class='bx bx-help-circle'></i>
+        </button>
+
+        <div class="exemplo-card" id="exemplo-card" style="display: none;">
+            <div class="exemplo-header">
+                <i class='bx bx-help-circle'></i>
+                <button type="button" class="exemplo-close" id="exemplo-close">✕</button>
+            </div>
+            <div class="exemplo-content">
+                <ul>
+                    <li><strong>Notícia Rápida:</strong> Aparece na barra inferior passando da direita para esquerda</li>
+                    <li><strong>Evento (com ou sem Imagem):</strong> Deve ter título, imagem <b>ou</b> cor de fundo, e opcionalmente, um texto pequeno e um link para QR Code. O texto aparecerá no canto inferior esquerdo da tela.</li>
+                    <li><strong>Evento com Vídeo:</strong> Deve ter título e vídeo, e opcionalmente, um texto pequeno e um link para QR Code. O texto aparecerá no canto esquerdo da tela.</li>
+                    <li><strong>QR Code:</strong> Aparece no canto inferior direito quando você adiciona um link</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário para adicionar novo conteúdo -->
+    <div class="container">
+        <h2>Adicionar Nova Publicação</h2>
+
+        <form action="{{ url_for('admin') }}" method="POST" enctype="multipart/form-data">
+            <div class="labeldiv"><label for="tipo_conteudo">Tipo de Conteúdo:</label></div>
+            <select name="tipo_conteudo" id="tipo_conteudo">
+                <option value="noticia">Notícia Rápida</option>
+                <option value="imagem">Evento (com ou sem Imagem)</option>
+                <option value="video">Vídeo</option>
+            </select>
+
+            <!-- NOTÍCIA RÁPIDA -->
+            <div id="campo_noticia">
+                <label for="conteudo_noticia">Texto da Notícia Rápida:</label>
+                <textarea name="conteudo_noticia" id="conteudo_noticia" maxlength="250" rows="3"
+                placeholder="Ex: Confira a seção de achados e perdidos"></textarea>
+            </div>
+
+            <!-- EVENTO COM IMAGEM -->
+            <div id="campo_imagem" style="display: none;">
+                <div class="campo_imagem_left">
+                    <label for="imagem">Imagem do Evento:</label>
+                    <div class="upload-area" id="upload-area">
+                        <i class='bx bx-cloud-upload'></i>
+                        <span>Clique ou arraste<br>uma imagem aqui<br>(recomendado: 1920x1080px)</span>
+                        <input type="file" name="imagem" id="imagem" accept="image/*">
+                        <div id="preview-container"></div>
+                    </div>
+                    <div class="cor-fundo-group">
+                        <label for="cor_fundo">Cor de Fundo</label>
+                        <input type="color" name="cor_fundo" id="cor_fundo" value="#667eea">
+                    </div>
+                </div>
+
+                <div class="campo_imagem_right">
+                    <label for="titulo_evento" id="titulo_evento_label">Título:</label>
+                    <input type="text" name="titulo_evento_imagem" id="titulo_evento" maxlength="50" placeholder="Ex: Feira de Ciências 2025">
+
+                    <label for="descricao_evento">Descrição:</label>
+                    <textarea name="descricao_evento_imagem" id="descricao_evento" maxlength="250" rows="3"
+                        placeholder="Ex: Venha conhecer os projetos dos nossos alunos..."></textarea>
+                    
+                    <label for="imagem_qrcode">QR Code:</label>
+                    <input type="url" name="link_qrcode" id="link_qrcode_imagem" placeholder="https://exemplo.com">
+                </div>
+            </div>
+
+            <!-- EVENTO COM VÍDEO -->
+            <div id="campo_video" class="campo_video" style="display: none;">
+
+                <div class="campo_imagem_left">
+                    <label for="video">Vídeo do Evento:</label>
+                    <div class="upload-area" id="upload-area-video">
+                        <i class='bx bx-video'></i>
+                        <span>Clique ou arraste<br>um vídeo aqui<br>(recomendado: MP4, 1920x1080px)</span>
+                        <input type="file" name="video" id="video" accept="video/mp4,video/webm,video/ogg">
+                        <div id="preview-container-video"></div>
+                    </div>
+                </div>
+
+                <div class="campo_imagem_right">
+                    <label for="titulo_evento_video">Título:</label>
+                    <input type="text" name="titulo_evento_video" id="titulo_evento_video" maxlength="50"
+                        placeholder="Ex: Festa junina 2025">
+                
+                    <label for="descricao_evento_video">Descrição:</label>
+                    <textarea name="descricao_evento_video" id="descricao_evento_video" maxlength="250" rows="3"
+                        placeholder="Ex: Apresentação de dança"></textarea>
+
+                    <label for="link_qrcode_video">Link para QR Code:</label>
+                    <input type="url" name="link_qrcode" id="link_qrcode_video" placeholder="https://exemplo.com">
+                </div>
+            </div>
+
+            <!-- AGENDAMENTO -->
+            <div class="agendamento-section">
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label for="data_inicio">Data e Hora de Início:</label>
+                        <input type="datetime-local" name="data_inicio" id="data_inicio">
+                        <small style="color: #666;">(deixe vazio para começar agora)</small>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label for="data_fim">Data e Hora de Fim:</label>
+                        <input type="datetime-local" name="data_fim" id="data_fim">
+                        <small style="color: #666;">(deixe vazio para não expirar)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dispositivos -->
+            <div class="tv-select">
+                <label for="checkbox-group">Publicar em:</label>
+                <div class="checkbox-group" id="checkbox-group">
+                    {% if dispositivos %}
+                        {% for dispositivo in dispositivos %}
+                        <label>
+                            <input type="checkbox" name="dispositivos" value="{{ dispositivo.id }}" checked>
+                            {{ dispositivo.nome }} - {{ dispositivo.local }} ({{ dispositivo.ip }})
+                        </label>
+                        {% endfor %}
+                    {% else %}
+                        <p>Nenhuma TV cadastrada. <a href="{{ url_for('adicionar_dispositivo') }}">Cadastre uma primeiro</a>.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+                <div class="form-bts">
+                    <a href="{{ url_for('publicacoes_ativas') }}" class="btn blue"> Ver Publicações Ativas</a>
+                    <button type="submit" class="btn green">Publicar Conteúdo</button>
+                </div>
+        </form>
+
+    </div>
+
+    <div class="botoes">
+        <a href="{{ url_for('show_painel') }}" class="btn top left floating">Mostrar Painel</a>
+        <a href="{{ url_for('listar_dispositivos') }}" class="btn top right floating">Gerenciar TVs</a>
+    </div>
+
+</body>
+</html>

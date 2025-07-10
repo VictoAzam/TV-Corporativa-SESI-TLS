@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<head>
+    <title>Login - CMS Quiosques</title>
+</head>
+<body>
+    <h1 class="login-title">Login</h1>
+
+    <form class="login-form" method="post">
+        <label>Email:</label>
+        <input type="email" name="email" required><br>
+
+        <label>Senha:</label>
+        <input type="password" name="senha" required><br><br>
+
+        <input type="submit" value="Entrar" class="btn green" id="login-button">
+    </form>
+</body>
+</html>
