@@ -1,0 +1,41 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Virtual environments
+env/
+venv/
+kioskvenv/
+.venv/
+.env/
+
+# Environment variables
+*.env
+.env
+
+# VSCode
+.vscode/
+
+# SQLite database
+*.db
+*.sqlite3
+
+# Flask
+instance/
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Backup files
+*~
+*.bak
+
+# Cache files
+clima.json
