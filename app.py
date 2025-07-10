@@ -1,15 +1,16 @@
 import json
 import os
+import platform
 import requests
 import subprocess
-from flask import Flask, render_template, request, redirect, flash, url_for, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
-from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime, time, timedelta
-from werkzeug.utils import secure_filename
 import uuid
+from datetime import datetime, time, timedelta
+from flask import Flask, render_template, request, redirect, flash, url_for, jsonify
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
+from flask_sqlalchemy import SQLAlchemy
+from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import or_, and_
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'S3nh@IFMS'
@@ -29,8 +30,6 @@ login_manager.login_view = 'login'
 DURACAO_INTERVALO = timedelta(minutes=20)
 AVISO_ANTECIPADO = timedelta(minutes=15)  # Tempo de antecedência para avisos
 AVISO_FIM = timedelta(minutes=5)          # Aviso antes do fim do intervalo
-
-      
 
 HORARIOS_EVENTOS = {
     # MANHÃ
@@ -93,13 +92,9 @@ def get_status_intervalo():
     """
     Verifica o horário atual e retorna o status do próximo evento.
     """
-    print(f"\n=== DEBUG GET_STATUS_INTERVALO ===")
     agora_dt = datetime.now()
     hoje = agora_dt.date()
     turno_atual = get_turno_atual(agora_dt.time())
-    
-    print(f"Hora atual: {agora_dt}")
-    print(f"Turno atual: {turno_atual}")
     
     # Filtrar eventos apenas do turno atual ou sem turno específico
     eventos_do_turno = {
@@ -109,7 +104,6 @@ def get_status_intervalo():
     
     # Ordena eventos por horário
     eventos_ordenados = sorted(eventos_do_turno.items(), key=lambda item: item[1]['inicio'])
-    print(f"Eventos do turno ordenados: {[(nome, det['inicio']) for nome, det in eventos_ordenados]}")
     
     for nome, detalhes in eventos_ordenados:
         inicio_dt = datetime.combine(hoje, detalhes['inicio'])
@@ -118,67 +112,50 @@ def get_status_intervalo():
         tempo_para_inicio = inicio_dt - agora_dt
         tempo_para_fim = fim_dt - agora_dt
         
-        print(f"\n--- Verificando: {nome} ({detalhes.get('turno', 'geral')}) ---")
-        print(f"Início: {inicio_dt.strftime('%H:%M')}")
-        print(f"Fim: {fim_dt.strftime('%H:%M')}")
-        print(f"Tempo para início: {tempo_para_inicio}")
-        print(f"Tempo para fim: {tempo_para_fim}")
-        
         # CONDIÇÃO 1: Avisar 15 minutos antes do INÍCIO
         if timedelta(seconds=0) <= tempo_para_inicio <= AVISO_ANTECIPADO:
-            minutos = int(tempo_para_inicio.total_seconds() // 60)
-            resultado = {
+            return {
                 "show_aviso": True,
                 "mensagem_status": f"{nome.title()}",
                 "tempo_restante_segundos": tempo_para_inicio.total_seconds(),
                 "tipo_evento": "aviso_inicio",
                 "turno": detalhes.get('turno', 'geral')
             }
-            print(f"RETORNANDO (aviso início): {resultado}")
-            return resultado
         
         # CONDIÇÃO 2: DURANTE o intervalo
         if tempo_para_inicio <= timedelta(seconds=0) <= tempo_para_fim and detalhes['tipo'] == 'intervalo':
-            minutos = int(tempo_para_fim.total_seconds() // 60)
-            
             # Se faltam 5 minutos ou menos para terminar
             if tempo_para_fim <= AVISO_FIM:
-                resultado = {
+                return {
                     "show_aviso": True,
                     "mensagem_status": f"O intervalo termina em",
                     "tempo_restante_segundos": tempo_para_fim.total_seconds(),
                     "tipo_evento": "fim_intervalo",
                     "turno": detalhes.get('turno', 'geral')
                 }
-                print(f"RETORNANDO (fim intervalo): {resultado}")
-                return resultado
             else:
-                resultado = {
+                return {
                     "show_aviso": True,
                     "mensagem_status": f"Intervalo em andamento",
                     "tempo_restante_segundos": tempo_para_fim.total_seconds(),
                     "tipo_evento": "durante_intervalo",
                     "turno": detalhes.get('turno', 'geral')
                 }
-                print(f"RETORNANDO (durante intervalo): {resultado}")
-                return resultado
         
         # CONDIÇÃO 3: Avisar saída (5 min antes)
         if detalhes['tipo'] == 'saida' and timedelta(seconds=0) <= tempo_para_inicio <= timedelta(minutes=5):
             minutos = int(tempo_para_inicio.total_seconds() // 60)
-            resultado = {
+            return {
                 "show_aviso": True,
                 "mensagem_status": f"Saída do turno {detalhes.get('turno', '')} em {minutos} minutos",
                 "tempo_restante_segundos": tempo_para_inicio.total_seconds(),
                 "tipo_evento": "aviso_saida",
                 "turno": detalhes.get('turno', 'geral')
             }
-            print(f"RETORNANDO (aviso saída): {resultado}")
-            return resultado
     
     # Se chegou aqui, não há avisos ativos
     if agora_dt.weekday() >= 5:  # Final de semana
-        resultado = {
+        return {
             "show_aviso": False,
             "mensagem_status": "Bom final de semana!",
             "tempo_restante_segundos": None,
@@ -186,7 +163,7 @@ def get_status_intervalo():
             "turno": None
         }
     elif turno_atual is None:  # Fora do horário escolar
-        resultado = {
+        return {
             "show_aviso": False,
             "mensagem_status": "Escola fechada - Próximo turno: 7h (manhã)",
             "tempo_restante_segundos": None,
@@ -194,16 +171,13 @@ def get_status_intervalo():
             "turno": None
         }
     else:  # Horário normal de aula
-        resultado = {
+        return {
             "show_aviso": False,
             "mensagem_status": f"Aula em andamento - Turno da {turno_atual}",
             "tempo_restante_segundos": None,
             "tipo_evento": "aula_normal",
             "turno": turno_atual
         }
-    
-    print(f"RETORNANDO (sem aviso): {resultado}")
-    return resultado
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -211,8 +185,6 @@ def load_user(user_id):
 
 
 def fetch_and_cache_weather():
-    print("--------------------------------------------------")
-    print(f"AGENDADOR: Buscando dados de PREVISÃO para {city}...")
     url = f'https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units=metric&lang=pt_br'
     try:
         response = requests.get(url, verify=False)
@@ -220,10 +192,9 @@ def fetch_and_cache_weather():
         dados_previsao = response.json()
         with open(CACHE_FILE, 'w', encoding='utf-8') as f:
             json.dump(dados_previsao, f, ensure_ascii=False, indent=4)
-        print("AGENDADOR: Dados de previsão salvos com sucesso no cache!")
     except requests.exceptions.RequestException as e:
-        print(f"!!!!!!!!!! AGENDADOR: Erro ao chamar a API: {e} !!!!!!!!!!!")
-    print("--------------------------------------------------")
+        print(f"Erro ao buscar dados do clima: {e}")
+        # Adicionar log se necessário
 
 
 class Dispositivo(db.Model):
@@ -364,9 +335,6 @@ def show_painel():
         )
     ).order_by(Evento.data_inicio.desc()).all()
     
-    print(f"DEBUG - Eventos encontrados: {len(evento)}")
-    for e in evento:
-        print(f"  - Evento: {e.titulo}, Descrição: {e.descricao}, Cor: {getattr(e, 'cor_fundo', 'N/A')}, Imagem: {e.imagem}, Vídeo: {e.video}, Link: {e.link}")
     status_intervalo = get_status_intervalo()
     return render_template(
         "painel.html",
@@ -503,9 +471,6 @@ def excluir_dispositivo(dispositivo_id):
 @login_required
 def testar_dispositivo(ip):
     try:
-        import subprocess
-        import platform
-        
         # Usar comando ping apropriado para Windows ou Linux
         if platform.system().lower() == 'windows':
             result = subprocess.run(['ping', '-n', '1', '-w', '3000', ip], 
@@ -540,9 +505,6 @@ def enviar_conteudo(dispositivo_id):
     
     # Primeiro, testar se o dispositivo responde
     try:
-        import subprocess
-        import platform
-        
         # Usar comando ping apropriado para Windows
         if platform.system().lower() == 'windows':
             result = subprocess.run(['ping', '-n', '1', '-w', '3000', dispositivo.ip], 
@@ -610,18 +572,12 @@ scheduler.start()
 @login_required
 def admin():
     if request.method == 'POST':
-        print("=== DEBUG FORMULÁRIO ===")
         dispositivos_ids = request.form.getlist('dispositivos')
         tipo_conteudo = request.form.get('tipo_conteudo')
         
         # Campos de agendamento
         data_inicio_str = request.form.get('data_inicio')
         data_fim_str = request.form.get('data_fim')
-        
-        print(f"Tipo de conteúdo: {tipo_conteudo}")
-        print(f"Dispositivos selecionados: {dispositivos_ids}")
-        print(f"Data início: {data_inicio_str}")
-        print(f"Data fim: {data_fim_str}")
 
         if not dispositivos_ids:
             flash("Você deve selecionar ao menos um dispositivo.", "danger")
@@ -649,17 +605,12 @@ def admin():
         if tipo_conteudo == 'noticia':
             # NOTÍCIA RÁPIDA
             conteudo_noticia = request.form.get('conteudo_noticia')
-            print(f"=== CRIANDO NOTÍCIA ===")
-            print(f"Conteúdo da notícia recebido: '{conteudo_noticia}'")
-            print(f"Dispositivos selecionados: {dispositivos_ids}")
-            print(f"Total de dispositivos: {len(dispositivos_ids)}")
             
             if not conteudo_noticia or conteudo_noticia.strip() == '':
                 flash("Você deve preencher o texto da notícia rápida.", "danger")
                 return redirect(url_for('admin'))
             
             conteudo_limpo = conteudo_noticia.strip()
-            print(f"Conteúdo limpo: '{conteudo_limpo}' (tamanho: {len(conteudo_limpo)})")
             
             # Validar tamanho do conteúdo
             if len(conteudo_limpo) > 250:
@@ -674,17 +625,13 @@ def admin():
             ).first()
             
             if noticia_recente:
-                print(f"⚠️ NOTÍCIA DUPLICADA DETECTADA! Ignorando submissão.")
                 flash("Esta notícia já foi criada recentemente.", "warning")
                 return redirect(url_for('admin'))
             
             for id_dispositivo in dispositivos_ids:
-                print(f"Criando notícia para dispositivo ID: {id_dispositivo}")
-                
                 # Validar se o dispositivo existe
                 dispositivo = Dispositivo.query.get(id_dispositivo)
                 if not dispositivo:
-                    print(f"⚠️ Dispositivo {id_dispositivo} não encontrado!")
                     flash(f"Dispositivo ID {id_dispositivo} não foi encontrado.", "danger")
                     return redirect(url_for('admin'))
                 
@@ -696,9 +643,6 @@ def admin():
                     data_fim=data_fim
                 )
                 db.session.add(nova_noticia)
-                print(f"✅ Notícia adicionada à sessão para dispositivo {id_dispositivo} ({dispositivo.nome})")
-            
-            print(f"=== FIM CRIAÇÃO NOTÍCIA ===")
         
         elif tipo_conteudo in ['imagem', 'video']:
             # EVENTO COM IMAGEM OU VÍDEO
@@ -720,8 +664,6 @@ def admin():
             titulo_final = titulo_evento.strip()
             descricao_final = descricao_evento.strip() if descricao_evento else ""
             
-            print(f"Validação - Título: '{titulo_final}', Descrição: '{descricao_final}'")
-            
             # Processamento de arquivo (imagem ou vídeo)
             arquivo_filename = None
             
@@ -736,10 +678,7 @@ def admin():
                         file_path = os.path.join(upload_folder, unique_filename)
                         file.save(file_path)
                         arquivo_filename = f"uploads/{unique_filename}"
-                        print(f"Imagem salva como: {arquivo_filename}")
                     
-                print(f"Arquivo de imagem: {arquivo_filename or 'Nenhum'}")
-                
                 # VALIDAÇÃO: Para eventos do tipo "imagem", deve ter pelo menos descrição OU imagem
                 if not descricao_final and not arquivo_filename:
                     flash("Para eventos com imagem, você deve preencher pelo menos a descrição ou enviar uma imagem.", "danger")
@@ -756,7 +695,6 @@ def admin():
                         file_path = os.path.join(upload_folder, unique_filename)
                         file.save(file_path)
                         arquivo_filename = f"uploads/{unique_filename}"
-                        print(f"Vídeo salvo como: {arquivo_filename}")
                     else:
                         flash("Você deve selecionar um vídeo.", "danger")
                         return redirect(url_for('admin'))
@@ -772,18 +710,11 @@ def admin():
             ).first()
             
             if evento_recente:
-                print(f"⚠️ EVENTO DUPLICADO DETECTADO! Ignorando submissão.")
                 flash("Este evento já foi criado recentemente.", "warning")
                 return redirect(url_for('admin'))
             
-            print(f"=== CRIANDO EVENTOS ===")
-            print(f"Título: '{titulo_final}'")
-            print(f"Dispositivos selecionados: {dispositivos_ids}")
-            print(f"Total de dispositivos: {len(dispositivos_ids)}")
-            
             # Criar evento para cada dispositivo
             for id_dispositivo in dispositivos_ids:
-                print(f"Criando evento para dispositivo ID: {id_dispositivo}")
                 novo_evento = Evento(
                     dispositivo_id=id_dispositivo,
                     titulo=titulo_final,
@@ -797,24 +728,15 @@ def admin():
                     data_fim=data_fim
                 )
                 db.session.add(novo_evento)
-                print(f"✅ Evento criado para dispositivo {id_dispositivo}: {titulo_final}")
-            
-            print(f"=== FIM CRIAÇÃO EVENTOS ===")
         
         else:
             flash("Tipo de conteúdo inválido.", "danger")
             return redirect(url_for('admin'))
         
         try:
-            print("Tentando fazer commit no banco de dados...")
             db.session.commit()
-            print("✅ Dados salvos no banco com sucesso!")
             flash("Conteúdo adicionado com sucesso!", "success")
         except Exception as e:
-            print(f"❌ ERRO ao salvar no banco: {e}")
-            print(f"Tipo do erro: {type(e)}")
-            import traceback
-            print(f"Traceback completo: {traceback.format_exc()}")
             db.session.rollback()
             flash(f"Erro ao salvar no banco de dados: {str(e)}", "danger")
             
@@ -916,18 +838,16 @@ def excluir_evento(id):
         if os.path.exists(arquivo_path):
             try:
                 os.remove(arquivo_path)
-                print(f"Arquivo de imagem removido: {arquivo_path}")
             except Exception as e:
-                print(f"Erro ao remover arquivo de imagem: {e}")
+                pass  # Silenciar erro ao remover arquivo
     
     if evento.video:
         arquivo_path = os.path.join(app.root_path, 'static', evento.video)
         if os.path.exists(arquivo_path):
             try:
                 os.remove(arquivo_path)
-                print(f"Arquivo de vídeo removido: {arquivo_path}")
             except Exception as e:
-                print(f"Erro ao remover arquivo de vídeo: {e}")
+                pass  # Silenciar erro ao remover arquivo
     
     # Excluir todos os eventos similares (de todas as TVs)
     for evento_similar in eventos_similares:
@@ -990,7 +910,6 @@ def clima():
                 'icone': primeira_previsao['weather'][0]['icon'],
             }
         except (IOError, json.JSONDecodeError, KeyError) as e:
-            print(f"Erro ao ler ou processar o arquivo de cache: {e}")
             erro_msg = "Ocorreu um erro ao carregar os dados do clima."
             
     return render_template(
@@ -1094,7 +1013,6 @@ def editar_noticia(id):
     
     # Para GET, buscar dispositivos disponíveis e selecionados
     dispositivos = Dispositivo.query.all()
-    print(f"DEBUG: Encontrados {len(dispositivos)} dispositivos")
     
     # Buscar quais dispositivos têm esta notícia
     dispositivos_com_noticia = db.session.query(Dispositivo.id).join(Noticia).filter(
@@ -1104,7 +1022,6 @@ def editar_noticia(id):
         Noticia.status == 'ativa'
     ).all()
     dispositivos_selecionados = [d.id for d in dispositivos_com_noticia]
-    print(f"DEBUG: Dispositivos selecionados: {dispositivos_selecionados}")
     
     return render_template('gerenciador_deconteudo/editar_noticia.html', 
                          noticia=noticia, 
@@ -1162,7 +1079,7 @@ def editar_evento_imagem(id):
                         try:
                             os.remove(arquivo_path_antigo)
                         except Exception as e:
-                            print(f"Erro ao remover arquivo antigo: {e}")
+                            pass  # Silenciar erro ao remover arquivo
                 
                 # Salvar nova imagem
                 upload_folder = os.path.join(app.root_path, 'static', 'uploads')
@@ -1224,7 +1141,6 @@ def editar_evento_imagem(id):
     
     # Para GET, buscar dispositivos disponíveis e selecionados
     dispositivos = Dispositivo.query.all()
-    print(f"DEBUG evento imagem: Encontrados {len(dispositivos)} dispositivos")
     
     # Buscar quais dispositivos têm este evento
     dispositivos_com_evento = db.session.query(Dispositivo.id).join(Evento).filter(
@@ -1234,7 +1150,6 @@ def editar_evento_imagem(id):
         Evento.status == 'ativo'
     ).all()
     dispositivos_selecionados = [d.id for d in dispositivos_com_evento]
-    print(f"DEBUG evento imagem: Dispositivos selecionados: {dispositivos_selecionados}")
     
     return render_template('gerenciador_deconteudo/editar_evento_imagem.html', 
                          evento=evento, 
@@ -1291,7 +1206,7 @@ def editar_evento_video(id):
                         try:
                             os.remove(arquivo_path_antigo)
                         except Exception as e:
-                            print(f"Erro ao remover arquivo antigo: {e}")
+                            pass  # Silenciar erro ao remover arquivo
                 
                 # Salvar novo vídeo
                 upload_folder = os.path.join(app.root_path, 'static', 'uploads')
@@ -1352,7 +1267,6 @@ def editar_evento_video(id):
     
     # Para GET, buscar dispositivos disponíveis e selecionados
     dispositivos = Dispositivo.query.all()
-    print(f"DEBUG evento video: Encontrados {len(dispositivos)} dispositivos")
     
     # Buscar quais dispositivos têm este evento
     dispositivos_com_evento = db.session.query(Dispositivo.id).join(Evento).filter(
@@ -1362,7 +1276,6 @@ def editar_evento_video(id):
         Evento.status == 'ativo'
     ).all()
     dispositivos_selecionados = [d.id for d in dispositivos_com_evento]
-    print(f"DEBUG evento video: Dispositivos selecionados: {dispositivos_selecionados}")
     
     return render_template('gerenciador_deconteudo/editar_evento_video.html', 
                          evento=evento, 
@@ -1370,7 +1283,6 @@ def editar_evento_video(id):
                          dispositivos_selecionados=dispositivos_selecionados)
 
 if __name__ == '__main__':
-    print("Executando a busca inicial de clima antes de iniciar o servidor...")
     with app.app_context():
         fetch_and_cache_weather()
     app.run(debug=True, use_reloader=False)
