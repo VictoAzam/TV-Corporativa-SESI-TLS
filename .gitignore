@@ -21,3 +21,6 @@ instance/
 .DS_Store
 clima.json
 venv
+
+# Uploads e arquivos locais
+static/uploads/
