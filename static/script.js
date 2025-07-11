@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         
         // Inicializar funcionalidades específicas para páginas de edição
-        if (document.querySelector('#imageUpload') || document.querySelector('#descricao_evento_imagem') || document.querySelector('#upload-area-video') || document.querySelector('#conteudo_noticia')) {
+        if (paginaAtualPath.includes('/editar_evento_imagem') || paginaAtualPath.includes('/editar_evento_video') || paginaAtualPath.includes('/editar_noticia')) {
             inicializarPaginasEdicao();
         }
         
@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             if (ev.link) {
-                qrcodeDiv.style.display = 'block';
+                qrcodeDiv.style.display = 'flex';
                 new QRCode(qrcodeDiv, {
                     text: ev.link,
                     width: 128,
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+    if (e.key === 'F2') {
         window.location.href = "/login";
     }
 });
@@ -313,7 +313,7 @@ function previewImagem(input) {
         reader.onload = function(e) {
             try {
                 uploadArea.classList.add('has-image');
-                previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" style="object-fit: cover; border-radius: 12px;">`;
+                previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" style="object-fit: contain; border-radius: 12px;">`;
             } catch (error) {
                 console.error('Erro ao criar preview:', error);
             }
@@ -382,6 +382,9 @@ function atualizarCamposConteudo() {
     campoImagem.style.display = tipo === "imagem" ? "grid" : "none";
     if (tipo === "imagem") {
       if (tituloImagem) tituloImagem.setAttribute('required', 'required');
+      // Reset configuration flag
+      const uploadArea = document.getElementById('upload-area');
+      if (uploadArea) uploadArea.dataset.configured = 'false';
       setTimeout(() => {
         configurarUploadImagem();
       }, 100);
@@ -393,6 +396,9 @@ function atualizarCamposConteudo() {
     if (tipo === "video") {
       if (tituloVideo) tituloVideo.setAttribute('required', 'required');
       if (videoInput) videoInput.setAttribute('required', 'required');
+      // Reset configuration flag
+      const uploadAreaVideo = document.getElementById('upload-area-video');
+      if (uploadAreaVideo) uploadAreaVideo.dataset.configured = 'false';
       setTimeout(() => {
         configurarUploadVideo();
       }, 100);
@@ -751,15 +757,7 @@ function configurarAdicaoDispositivo() {
         atualizarCamposConteudo();
     }
     
-    // Configurar upload de imagem
-    if (document.getElementById('upload-area')) {
-        configurarUploadImagem();
-    }
-    
-    // Configurar upload de vídeo
-    if (document.getElementById('upload-area-video')) {
-        configurarUploadVideo();
-    }
+    // Upload será configurado apenas quando necessário pelo atualizarCamposConteudo()
     
     // Configurar validação do formulário de conteúdo (apenas uma vez)
     configurarValidacaoFormularioConteudo();
@@ -830,23 +828,48 @@ function configurarUploadImagem() {
         return;
     }
 
+    // Verificar se já foi configurado
+    if (uploadArea.dataset.configured === 'true') {
+        console.log('Upload já configurado, saindo...');
+        return;
+    }
+
     console.log('Configurando upload de imagem...');
     
-    // Remover listeners existentes
-    const newUploadArea = uploadArea.cloneNode(true);
-    uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
+    // Marcar como configurado
+    uploadArea.dataset.configured = 'true';
     
-    // Obter nova referência ao input
-    const newFileInput = newUploadArea.querySelector('#imagem');
+    // Flag para prevenir múltiplos cliques
+    let isProcessingClick = false;
     
     // Click para abrir seletor - versão simples
-    newUploadArea.addEventListener('click', function(e) {
+    uploadArea.addEventListener('click', function(e) {
+        // Não processar cliques no próprio input
+        if (e.target === fileInput) {
+            return;
+        }
+        
+        // Prevenir múltiplos cliques rapidamente
+        if (isProcessingClick) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+        
+        isProcessingClick = true;
+        e.preventDefault();
+        e.stopPropagation();
         console.log('Upload area clicada!');
-        newFileInput.click();
+        fileInput.click();
+        
+        // Reset flag após um pequeno delay
+        setTimeout(() => {
+            isProcessingClick = false;
+        }, 100);
     });
 
     // Preview quando arquivo é selecionado
-    newFileInput.addEventListener('change', function(e) {
+    fileInput.addEventListener('change', function(e) {
         console.log('Arquivo selecionado:', this.files);
         if (this.files && this.files[0]) {
             previewImagem(this);
@@ -873,23 +896,48 @@ function configurarUploadVideo() {
         return;
     }
 
+    // Verificar se já foi configurado
+    if (uploadArea.dataset.configured === 'true') {
+        console.log('Upload de vídeo já configurado, saindo...');
+        return;
+    }
+
     console.log('Configurando upload de vídeo...');
     
-    // Remover listeners existentes
-    const newUploadArea = uploadArea.cloneNode(true);
-    uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
+    // Marcar como configurado
+    uploadArea.dataset.configured = 'true';
     
-    // Obter nova referência ao input
-    const newFileInput = newUploadArea.querySelector('#video');
+    // Flag para prevenir múltiplos cliques
+    let isProcessingClickVideo = false;
     
     // Click para abrir seletor
-    newUploadArea.addEventListener('click', function(e) {
+    uploadArea.addEventListener('click', function(e) {
+        // Não processar cliques no próprio input
+        if (e.target === fileInput) {
+            return;
+        }
+        
+        // Prevenir múltiplos cliques rapidamente
+        if (isProcessingClickVideo) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+        
+        isProcessingClickVideo = true;
+        e.preventDefault();
+        e.stopPropagation();
         console.log('Upload area de vídeo clicada!');
-        newFileInput.click();
+        fileInput.click();
+        
+        // Reset flag após um pequeno delay
+        setTimeout(() => {
+            isProcessingClickVideo = false;
+        }, 100);
     });
 
     // Preview quando arquivo é selecionado
-    newFileInput.addEventListener('change', function(e) {
+    fileInput.addEventListener('change', function(e) {
         console.log('Vídeo selecionado:', this.files);
         if (this.files && this.files[0]) {
             previewVideo(this);
@@ -1228,6 +1276,15 @@ function configurarUploadVideoEdicao() {
                     setTimeout(() => {
                         currentVideoInfo.parentElement.classList.remove('image-changed');
                     }, 2000);
+                }
+                
+                // Criar preview do vídeo
+                const previewContainer = document.getElementById('preview-container-video');
+                if (previewContainer) {
+                    const url = URL.createObjectURL(file);
+                    previewContainer.innerHTML = `<video src="${url}" controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                        Seu navegador não suporta o elemento de vídeo.
+                    </video>`;
                 }
                 
                 // Reduzir área de upload
