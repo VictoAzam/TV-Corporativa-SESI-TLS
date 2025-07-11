@@ -85,13 +85,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // SEÇÃO 3: ROTAÇÃO DE PÁGINAS (se necessário)
     // ======================================================
     const paginaAtualPath = window.location.pathname;
-    console.log("--- Iniciando Script de Rotação de Página ---");
-    console.log("Página atual:", paginaAtualPath);
 
     // Verificar se deve desabilitar rotação para páginas administrativas
     const paginasAdministrativas = ['/admin', '/login', '/adicionar_dispositivo', '/listar_dispositivos', '/editar_dispositivo', '/publicacoes_ativas', '/editar_evento_imagem', '/editar_noticia', '/editar_evento_video'];
     if (paginasAdministrativas.some(pagina => paginaAtualPath.startsWith(pagina))) {
-        console.log("Página administrativa detectada. Rotação de página desabilitada.");
         
         // ======================================================
         // SEÇÃO 4: INICIALIZAÇÃO PARA PÁGINAS ADMINISTRATIVAS
@@ -162,27 +159,21 @@ document.addEventListener("DOMContentLoaded", function() {
     if (deveMostrarAviso) {
         paginasAtuais.push('/aviso-intervalo');
     }
-    console.log("Lista de páginas na rotação atual:", paginasAtuais);
 
     // 3. DEFINIR TEMPO DE EXIBIÇÃO
     const tempoDeExibicao = 15000; // 15 segundos
 
     // 4. DECIDIR QUAL SERÁ A PRÓXIMA PÁGINA
     const indexDaPaginaAtual = paginasAtuais.indexOf(paginaAtualPath);
-    console.log("Índice da página atual na lista:", indexDaPaginaAtual);
 
     let proximaPagina;
 
     if (indexDaPaginaAtual !== -1) {
         const indexDaProximaPagina = (indexDaPaginaAtual + 1) % paginasAtuais.length;
         proximaPagina = paginasAtuais[indexDaProximaPagina];
-        console.log("Página está no ciclo. Próxima página será:", proximaPagina);
     } else {
         proximaPagina = paginasBase[0];
-        console.log("Página atual está FORA do ciclo. Voltando para a página inicial:", proximaPagina);
     }
-
-    console.log(`Redirecionando para '${proximaPagina}' em ${tempoDeExibicao / 1000} segundos.`);
 
     // 5. AGENDAR O REDIRECIONAMENTO
     setTimeout(function() {
@@ -224,7 +215,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 midiaContainer.innerHTML = '';
                 // Usar a cor de fundo personalizada do evento, ou cor padrão
                 const corFundo = ev.cor_fundo || '#667eea';
-                console.log('Aplicando cor de fundo:', corFundo, 'para evento:', ev.titulo);
                 midiaContainer.style.background = `${corFundo}`;
                 midiaContainer.style.backgroundImage = '';
             }
@@ -813,29 +803,18 @@ function configurarToggleExemplo() {
 
 // Função para configurar upload de imagem
 function configurarUploadImagem() {
-    console.log('Tentando configurar upload...');
-    
     const uploadArea = document.getElementById('upload-area');
     const fileInput = document.getElementById('imagem');
     
-    console.log('Elementos encontrados:', {
-        uploadArea: !!uploadArea,
-        fileInput: !!fileInput
-    });
-    
     if (!uploadArea || !fileInput) {
-        console.log('Elementos não encontrados, saindo...');
         return;
     }
 
     // Verificar se já foi configurado
     if (uploadArea.dataset.configured === 'true') {
-        console.log('Upload já configurado, saindo...');
         return;
     }
 
-    console.log('Configurando upload de imagem...');
-    
     // Marcar como configurado
     uploadArea.dataset.configured = 'true';
     
@@ -859,7 +838,6 @@ function configurarUploadImagem() {
         isProcessingClick = true;
         e.preventDefault();
         e.stopPropagation();
-        console.log('Upload area clicada!');
         fileInput.click();
         
         // Reset flag após um pequeno delay
@@ -870,40 +848,26 @@ function configurarUploadImagem() {
 
     // Preview quando arquivo é selecionado
     fileInput.addEventListener('change', function(e) {
-        console.log('Arquivo selecionado:', this.files);
         if (this.files && this.files[0]) {
             previewImagem(this);
         }
     });
-    
-    console.log('Upload configurado com sucesso!');
 }
 
 // Função para configurar upload de vídeo
 function configurarUploadVideo() {
-    console.log('Tentando configurar upload de vídeo...');
-    
     const uploadArea = document.getElementById('upload-area-video');
     const fileInput = document.getElementById('video');
     
-    console.log('Elementos encontrados:', {
-        uploadArea: !!uploadArea,
-        fileInput: !!fileInput
-    });
-    
     if (!uploadArea || !fileInput) {
-        console.log('Elementos de vídeo não encontrados, saindo...');
         return;
     }
 
     // Verificar se já foi configurado
     if (uploadArea.dataset.configured === 'true') {
-        console.log('Upload de vídeo já configurado, saindo...');
         return;
     }
 
-    console.log('Configurando upload de vídeo...');
-    
     // Marcar como configurado
     uploadArea.dataset.configured = 'true';
     
@@ -927,7 +891,6 @@ function configurarUploadVideo() {
         isProcessingClickVideo = true;
         e.preventDefault();
         e.stopPropagation();
-        console.log('Upload area de vídeo clicada!');
         fileInput.click();
         
         // Reset flag após um pequeno delay
@@ -938,7 +901,6 @@ function configurarUploadVideo() {
 
     // Preview quando arquivo é selecionado
     fileInput.addEventListener('change', function(e) {
-        console.log('Vídeo selecionado:', this.files);
         if (this.files && this.files[0]) {
             previewVideo(this);
         }
@@ -973,8 +935,6 @@ function configurarUploadVideo() {
             }
         }
     });
-    
-    console.log('Upload de vídeo configurado com sucesso!');
 }
 
 // Função para preview de vídeo
@@ -1016,7 +976,6 @@ function configurarValidacaoFormularioConteudo() {
         // Prevenir múltiplas submissões
         if (formularioEnviado) {
             e.preventDefault();
-            console.log('Formulário já foi enviado, ignorando nova submissão');
             return false;
         }
         
@@ -1060,8 +1019,6 @@ function configurarValidacaoFormularioConteudo() {
                 submitBtn.style.cursor = 'pointer';
             }
         }, 10000); // 10 segundos
-        
-        console.log('Formulário enviado com sucesso');
     });
 }
 
