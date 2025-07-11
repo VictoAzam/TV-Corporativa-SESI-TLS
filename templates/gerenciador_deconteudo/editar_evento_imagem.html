@@ -12,15 +12,16 @@
 <body>
     <!-- Mensagens Flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="flash-messages {{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash-messages {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
-
+    
     <div class="header">
         <h1>Editar Evento</h1>
+        <a href="{{ url_for('publicacoes_ativas') }}" class="btn floating top left">Voltar</a>
     </div>
 
     <div class="container">
@@ -80,7 +81,7 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     <!-- Campo de Cor de Fundo -->
                     <div class="cor-fundo-group">
                         <label for="cor_fundo">
@@ -146,7 +147,9 @@
             </div>
 
             <div class="form-bts">
-                <a href="{{ url_for('publicacoes_ativas') }}" class="btn btn-danger">Cancelar</a>
+                <button type="button" class="btn btn-danger" onclick="confirmarExclusao('{{ evento.id }}', 'evento_imagem')">
+                    Apagar Evento
+                </button>
                 <button type="submit" class="btn green">Salvar Alterações</button>
             </div>
         </form>

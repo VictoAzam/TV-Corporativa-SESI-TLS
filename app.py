@@ -26,10 +26,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# --- SEÇÃO DE CONFIGURAÇÃO DE INTERVALOS ---
+
 DURACAO_INTERVALO = timedelta(minutes=20)
-AVISO_ANTECIPADO = timedelta(minutes=15)  # Tempo de antecedência para avisos
-AVISO_FIM = timedelta(minutes=5)          # Aviso antes do fim do intervalo
+AVISO_ANTECIPADO = timedelta(minutes=15)  
+AVISO_FIM = timedelta(minutes=5)          
 
 HORARIOS_EVENTOS = {
     # MANHÃ
@@ -56,7 +56,7 @@ HORARIOS_EVENTOS = {
         'turno': 'noite'
     },
     
-    # SAÍDAS (opcional - para avisos de final de turno)
+    # SAÍDAS 
     "saída manhã": {
         'inicio': time(12, 35), 
         'duracao': timedelta(minutes=0),
@@ -95,7 +95,7 @@ def get_status_intervalo():
     agora_dt = datetime.now()
     hoje = agora_dt.date()
     turno_atual = get_turno_atual(agora_dt.time())
-    
+  
     # Filtrar eventos apenas do turno atual ou sem turno específico
     eventos_do_turno = {
         nome: detalhes for nome, detalhes in HORARIOS_EVENTOS.items()
