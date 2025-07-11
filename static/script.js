@@ -1297,3 +1297,48 @@ function inicializarPaginasEdicao() {
         uploadAreaVideo.classList.add('has-image');
     }
 }
+
+// ======================================================
+// FUNÇÃO PARA CONFIRMAR EXCLUSÃO
+// ======================================================
+function confirmarExclusao(id, tipo) {
+    let tipoTexto = '';
+    let rota = '';
+    
+    switch(tipo) {
+        case 'evento_imagem':
+        case 'evento_video':
+            tipoTexto = 'evento';
+            rota = '/excluir_evento/';
+            break;
+        case 'noticia':
+            tipoTexto = 'notícia';
+            rota = '/excluir_noticia/';
+            break;
+        default:
+            console.error('Tipo de exclusão não reconhecido:', tipo);
+            return;
+    }
+    
+    const confirmacao = confirm(`Tem certeza que deseja apagar este ${tipoTexto}?\n\nEsta ação não pode ser desfeita.`);
+    
+    if (confirmacao) {
+        // Cria um formulário para fazer a requisição POST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = rota + id;
+        
+        // Adiciona o token CSRF se necessário (dependendo da implementação do Flask)
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (csrfToken) {
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'csrf_token';
+            tokenInput.value = csrfToken.getAttribute('content');
+            form.appendChild(tokenInput);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}

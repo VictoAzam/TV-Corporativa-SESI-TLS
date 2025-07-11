@@ -127,6 +127,7 @@ input {
     text-decoration: none;
     color: #000;
     border-radius: 5px;
+    font-family: 'Ubuntu', sans-serif;
 }
 
 .btn:hover {

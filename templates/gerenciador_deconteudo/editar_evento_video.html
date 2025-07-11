@@ -20,6 +20,8 @@
     {% endwith %}
 
     <div class="header">
+        <a href="{{ url_for('publicacoes_ativas') }}" class="btn floating top left">Voltar</a>
+
         <h1>Editar Evento (Vídeo)</h1>
     </div>
 
@@ -101,7 +103,9 @@
             </div>
 
             <div class="form-bts">
-                <a href="{{ url_for('publicacoes_ativas') }}" class="btn btn-danger">Cancelar</a>
+                <button type="button" class="btn btn-danger" onclick="confirmarExclusao('{{ evento.id }}', 'evento_video')">
+                    Apagar Evento
+                </button>
                 <button type="submit" class="btn green">Salvar Alterações</button>
             </div>
         </form>
