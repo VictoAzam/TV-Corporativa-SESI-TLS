@@ -781,3 +781,11 @@ form {
     margin: 20px 0;
     /* Remove background e bordas para manter estilização original dos inputs */
 }
+
+.logout {
+    background: #dc3545;
+}
+
+.logout:hover {
+    background: #c82333;
+}

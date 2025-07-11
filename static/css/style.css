@@ -531,3 +531,10 @@ footer {
     align-self: center;
     font-size: 1.5rem;
 }
+
+.login-subtitle {
+    text-align: center;
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    margin-bottom: 1rem;
+    color: #555;
+}
