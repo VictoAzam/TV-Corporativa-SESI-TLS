@@ -1,0 +1,791 @@
+body {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header h1 {
+    color: #333;
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    min-height: auto;
+    max-width: 1100px;
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: calc(100% - 16px);
+        margin: 8px;
+        padding: 16px;
+    }
+}
+
+h1, h2, h3 {
+    color: #333;
+    margin-bottom: 15px;
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+small {
+    margin-bottom: 15px;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background: #d2cccc;
+    font-family: ubuntu, sans-serif;
+    font-size: 1rem;
+}
+
+.botoes {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    width: 100%;
+    gap: 10px;
+}
+
+.botoes .btn-primary {
+    background: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.botoes .btn-primary:hover {
+    background: #0056b3;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-excluir {
+    background-color: #dc3545;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.btn-excluir:hover {
+    background-color: #c82333;
+}
+
+.item-conteudo {
+    border: 1px solid #eee;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.tv-select {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background: #d2cccc;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    color: #000;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    margin-bottom: 0;
+}
+
+.flash-messages {
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.flash-messages.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash-messages.danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.preview-imagem {
+    max-width: 200px;
+    max-height: 150px;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+.btn-dispositivos {
+    margin-left: 10px;
+    color: #007bff;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid #007bff;
+    background: #fff;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-dispositivos:hover {
+    background: #007bff;
+    color: #fff;
+}
+
+.btn-voltar {
+    margin-left: 10px;
+    color: #6c757d;
+    text-decoration: none;
+}
+
+.btn-voltar:hover {
+    text-decoration: underline;
+}
+
+.qrcode-link {
+    color: #007bff;
+    word-break: break-all;
+}
+
+.qrcode-link:hover {
+    text-decoration: underline;
+}
+
+.form-inline {
+    display: inline;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.empty-state p {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.exemplo-toggle-container {
+    position: relative;
+}
+
+.exemplo-card {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 350px;
+    max-width: 90vw;
+    z-index: 1000;
+    display: none;
+}
+
+.exemplo-card.show {
+    display: block !important;
+}
+
+.exemplo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.exemplo-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.exemplo-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.exemplo-close:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.exemplo-content {
+    padding: 20px;
+}
+
+.exemplo-content ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.exemplo-content li {
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.exemplo-content strong {
+    color: #28a745;
+}
+
+/* Responsividade para o card */
+@media (max-width: 768px) {
+    .exemplo-card {
+        width: 300px;
+        right: -50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .exemplo-card {
+        width: 280px;
+        right: -80px;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+form {
+    max-width: 1000px;
+}
+
+#campo_imagem, .campo_video {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 30px;
+    align-items: start;
+    width: 100%;
+    max-width: 1200px;
+}
+
+#campo_imagem input[type="text"], #campo_imagem input[type="url"],
+#campo_video input[type="text"], #campo_video input[type="url"] {
+    width: auto;
+}
+
+#campo_imagem textarea,
+#campo_video textarea {
+    width: auto;
+    height: 200px;
+    font-size: 1rem;
+    background: #d2cccc;
+}
+
+.campo_imagem_left {
+    display: flex;
+    flex-direction: column;
+}
+
+.campo_imagem_right {
+    display: flex;
+    flex-direction: column; 
+}
+
+.campo_imagem_left label,
+.campo_imagem_right label {
+    margin-bottom: 0;
+    margin-top: 15px;
+}
+
+.campo_imagem_left label:first-child,
+.campo_imagem_right label:first-child {
+    margin-top: 0;
+}
+
+/* Estilos para labels dentro do campo_video */
+#campo_video .campo_imagem_left label,
+#campo_video .campo_imagem_right label {
+    margin-bottom: 0;
+    margin-top: 15px;
+}
+
+#campo_video .campo_imagem_left label:first-child,
+#campo_video .campo_imagem_right label:first-child {
+    margin-top: 0;
+}
+
+#titulo_evento_label {
+    margin-bottom: 10px;
+}
+
+#preview-container {
+    margin: 10px 0;
+}
+
+#preview-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsividade - em mobile fica em coluna única */
+@media (max-width: 768px) {
+    #campo_imagem {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    #campo_video {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .campo_imagem_left,
+    .campo_imagem_right {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .upload-area {
+        width: 200px;
+        height: 200px;
+        margin: 10px auto;
+    }
+
+    .form-bts {
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 10px;
+    }
+    .form-bts .btn {
+    }
+}
+
+/* Input customizado para upload de imagem */
+.upload-area {
+    width: 100%;
+    height: 285px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #d2cccc;
+    position: relative;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.upload-area:hover {
+    border-color: #007bff;
+    background: #f0f8ff;
+}
+
+.upload-area.dragover {
+    border-color: #28a745;
+    background: #f0fff0;
+}
+
+.upload-area i {
+    font-size: 3rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.upload-area span {
+    color: #666;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.upload-area span small {
+    font-size: 0.8rem;
+    color: #999;
+    font-style: italic;
+}
+
+.upload-area input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Quando há preview, esconde o conteúdo de upload */
+.upload-area.has-image i,
+.upload-area.has-image span {
+    display: none;
+}
+
+/* Preview da imagem aparece exatamente no lugar do input */
+.upload-area.has-image {
+    padding: 0;
+    background: transparent;
+    height: 350px;
+    border: 1px solid #ccc;
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
+/* Quando hover na área reduzida, mostra que ainda é clicável */
+.upload-area.has-image:hover {
+    opacity: 0.8;
+    border-color: #007bff;
+    background: rgba(0, 123, 255, 0.05);
+}
+
+/* Adiciona um texto pequeno quando há imagem */
+.upload-area.has-image::after {
+    content: "Clique para alterar a mídia";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 50px;
+    font-size: 0.8rem;
+    color: #666;
+    text-align: center;
+}
+
+#preview-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+    display: block;
+}
+
+/* Grupo de cor de fundo */
+.cor-fundo-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.cor-fundo-group input[type="color"] {
+    width: 60px;
+    height: 40px;
+    padding: 2px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cor-fundo-group small {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.labeldiv {
+    width: 100%;
+    align-items: start;
+}
+
+#campo_noticia {
+    width: 100%;
+}
+
+#campo_noticia textarea {
+    height: 50px;
+}
+
+.form-bts {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-bts .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-bts .btn i {
+    font-size: 16px;
+}
+
+/* Estilos para páginas de edição */
+
+.current-file {
+    width: 100%;
+}
+
+.current-file strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.current-file .preview-imagem {
+    max-width: 100%;
+    width: 100%;
+    max-height: 100%;
+    height: 100%;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: opacity 0.3s ease-in-out; /* Transição suave para substituição */
+}
+
+/* Efeito quando nova imagem está carregando */
+.current-file .preview-imagem.loading {
+    opacity: 0.7;
+}
+
+/* Destaque quando imagem foi alterada */
+.current-file.image-changed {
+    border: 2px solid #28a745;
+    padding: 2px;
+    border-radius: 6px;
+    animation: highlight 2s ease-in-out;
+}
+
+
+.video-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+}
+
+.video-info i {
+    font-size: 1.2rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.form-actions .btn {
+    min-width: 140px;
+}
+
+/* Responsividade para páginas de edição */
+@media (max-width: 768px) {
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    .current-file .preview-imagem {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+#descricao_evento_imagem_label {
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.edit_video {
+    display: block;
+    gap: 10px;
+}
+
+/* Estilos específicos para páginas de edição */
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: start;
+}
+
+.form-group {
+    flex: 1;
+}
+
+/* Ajustes para upload area em páginas de edição */
+.form-group .upload-area {
+    width: 100%;
+    height: 250px; /* Menor que a padrão */
+    border: 2px solid #ccc;
+}
+
+.form-group .upload-area:hover {
+    border-color: #007bff;
+    background: #f8f9ff;
+}
+
+/* Quando há imagem na página de edição, reduz ainda mais */
+.form-group .upload-area.has-image {
+    height: 50px;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    margin-top: 10px;
+    background: #f9f9f9;
+}
+
+.form-group .upload-area.has-image::after {
+    content: "Clique para trocar imagem";
+    font-size: 0.75rem;
+    color: #777;
+}
+
+.form-group .upload-area.has-image:hover {
+    border-color: #007bff;
+    background: rgba(0, 123, 255, 0.03);
+}
+
+/* Ajuste para o container da imagem atual */
+.form-group .current-file {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.form-group .current-file .preview-imagem {
+    border-radius: 8px;
+    max-height: 350px;
+    object-fit: cover;
+}
+
+/* Responsividade para form-row */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .form-group .upload-area {
+        height: 200px;
+    }
+    
+    .form-group .upload-area.has-image {
+        height: 45px;
+    }
+}
+
+/* Ajustes específicos para o grupo cor de fundo dentro do form-row */
+.form-row .cor-fundo-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 0;
+}
+
+.form-row .cor-fundo-group label {
+    margin-bottom: 5px;
+}
+
+.form-row .cor-fundo-group input[type="color"] {
+    width: 80px;
+    height: 50px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.form-row .cor-fundo-group input[type="color"]:hover {
+    border-color: #007bff;
+}
+
+/* Seção de agendamento (páginas de edição) - mantém estilização original */
+.agendamento-section {
+    margin: 20px 0;
+    /* Remove background e bordas para manter estilização original dos inputs */
+}
+
+.logout {
+    background: #dc3545;
+}
+
+.logout:hover {
+    background: #c82333;
+}

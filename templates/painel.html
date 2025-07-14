@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        const SHOW_AVISO = {{ show_aviso|tojson|default('false') }};
+        window.eventosPainel = [
+            {% for ev in evento %}
+                {
+                    imagem: "{{ url_for('static', filename=ev.imagem) if ev.imagem else '' }}",
+                    video: "{{ url_for('static', filename=ev.video) if ev.video else '' }}",
+                    link: "{{ ev.link or '' }}",
+                    titulo: "{{ ev.titulo|e }}",
+                    descricao: "{{ ev.descricao|e }}",
+                    cor_fundo: "{{ ev.cor_fundo or '#667eea' }}"
+                }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+    </script>
+    <title>Painel</title>
+</head>
+<body>
+    <main>
+        <div class="container painel" id="painel-principal">
+            <div id="midia-container"></div>
+            <div class="relogio">
+                <h1 id="data"></h1>
+                <h1 id="hora"></h1>
+            </div>
+            <div class="link">
+                <div class="descricao" id="descricao-container" style="display: none;"></div>
+                <div id="qrcode" style="display: none;"></div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="noticia-rapida">
+            {% for n in noticia %}
+                <span class="noticia-text">{{ n.conteudo }}</span>
+            {% endfor %}
+        </div>
+    </footer>
+</body>
+</html>

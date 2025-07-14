@@ -1,0 +1,241 @@
+/* Sobrescrever container global para esta página */
+.container {
+    padding: 0.5rem !important;
+    max-width: 100% !important;
+    background-color: #f5f5f5;
+}
+
+/* Header da página */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    color: #333;
+    margin: 1rem;
+}
+
+/* Container do formulário */
+.content {
+    max-width: 500px;
+    width: 100%;
+    background: white;
+    padding: 0.2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Grupos de formulário */
+.form-group {
+    width: 100%;
+    gap: 10px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Ações do formulário */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+}
+
+/* Grupo de IP com botão */
+.ip-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.ip-group input {
+    width: 100%;
+}
+
+/* Contadores de caracteres */
+.contador {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Botão de teste */
+.btn-test {
+    background: #28a745;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    min-width: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: fit-content;
+}
+
+.btn-test:hover {
+    background: #218838;
+}
+
+.btn-test:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Botões secundários */
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+
+/* Resultado do teste */
+.teste-resultado {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.teste-resultado.sucesso {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.teste-resultado.erro {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.footer .btn {
+    margin: 0 0.5rem;
+}
+
+/* Mensagens flash */
+.flash-messages {
+    margin-top: 1rem;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        padding: 0.5rem !important;
+    }
+    
+    .content {
+        padding: 1.5rem;
+        margin: 0 0.5rem;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .ip-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    
+    .btn-test {
+        margin-left: 0;
+        align-self: flex-start;
+    }
+}
+
+/* Validação de IP */
+.form-group input[name="ip"]:invalid {
+    border-color: #dc3545;
+}
+
+.form-group input[name="ip"]:valid {
+    border-color: #28a745;
+}

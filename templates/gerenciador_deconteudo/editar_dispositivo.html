@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/editar_dispositivo.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <title>Editar Dispositivo - Sistema de TVs</title>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('listar_dispositivos') }}" class="btn top left floating">
+            Lista de dispositivos
+        </a>
+        <div class="header">
+            <h1>Editar Dispositivo</h1>
+        </div>
+
+        <div class="form-container">
+            <form id="editar-dispositivo-form" method="POST" action="{{ url_for('editar_dispositivo', dispositivo_id=dispositivo.id) }}">
+                <div class="form-group">
+                    <label for="nome">Nome do Dispositivo:</label>
+                    <input type="text" id="nome" name="nome" value="{{ dispositivo.nome }}" required maxlength="50">
+                    <span id="contador-nome" class="contador">0/50</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="local">Local do Dispositivo:</label>
+                    <input type="text" id="local" name="local" value="{{ dispositivo.local }}" required maxlength="50">
+                    <span id="contador-local" class="contador">0/50</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="ip">Endereço IP:</label>
+                    <div class="ip-group">
+                        <input type="text" id="ip" name="ip" value="{{ dispositivo.ip }}" required pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" title="Digite um IP válido (ex: 192.168.1.100)">
+                        <button type="button" id="testar-conexao" class="btn btn-test"><i class='bx bx-search'></i></button>
+                    </div>
+                    <div id="resultado-teste" class="teste-resultado"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status" name="status">
+                        <option value="ativo" {% if dispositivo.status == 'ativo' %}selected{% endif %}>Ativo</option>
+                        <option value="inativo" {% if dispositivo.status == 'inativo' %}selected{% endif %}>Inativo</option>
+                        <option value="manutencao" {% if dispositivo.status == 'manutencao' %}selected{% endif %}>Manutenção</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="observacoes">Observações (opcional) :</label>
+                    <textarea id="observacoes" name="observacoes" maxlength="500" rows="4" placeholder="Observações adicionais sobre o dispositivo...">{{ dispositivo.observacoes or '' }}</textarea>
+                    <span id="contador-observacoes" class="contador">0/500</span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="excluir-dispositivo" class="btn btn-danger">
+                        Excluir
+                    </button>
+                    <button type="submit" class="btn btn-primary green">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="device-info">
+            <h3>Informações do Dispositivo</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>ID:</strong> {{ dispositivo.id }}
+                </div>
+                <div class="info-item">
+                    <strong>Última Atualização:</strong> 
+                    {{ dispositivo.ultima_atualizacao.strftime('%d/%m/%Y %H:%M') if dispositivo.ultima_atualizacao else 'N/A' }}
+                </div>
+                <div class="info-item">
+                    <strong>Última Sincronização:</strong> 
+                    {{ dispositivo.ultima_sincronizacao.strftime('%d/%m/%Y %H:%M') if dispositivo.ultima_sincronizacao else 'N/A' }}
+                </div>
+                <div class="info-item">
+                    <strong>Última Conexão:</strong> 
+                    {{ dispositivo.ultima_conexao.strftime('%d/%m/%Y %H:%M') if dispositivo.ultima_conexao else 'N/A' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação para exclusão -->
+    <div id="modal-exclusao" class="modal">
+        <div class="modal-content">
+            <h3>Confirmar Exclusão</h3>
+            <p>Tem certeza de que deseja excluir o dispositivo <strong>{{ dispositivo.nome }}</strong>?</p>
+            <p class="warning">⚠️ Esta ação também excluirá todos os conteúdos associados a este dispositivo e não pode ser desfeita!</p>
+            <div class="modal-actions">
+                <button id="confirmar-exclusao" class="btn btn-danger">Sim, Excluir</button>
+                <button id="cancelar-exclusao" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
