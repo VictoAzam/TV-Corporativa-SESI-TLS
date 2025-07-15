@@ -146,22 +146,32 @@ document.addEventListener("DOMContentLoaded", function() {
     
     if (typeof window.SHOW_AVISO !== "undefined") {
         deveMostrarAviso = window.SHOW_AVISO;
+        console.log("Usando window.SHOW_AVISO:", deveMostrarAviso);
     } else if (typeof SHOW_AVISO !== "undefined") {
         deveMostrarAviso = SHOW_AVISO;
+        console.log("Usando SHOW_AVISO:", deveMostrarAviso);
+    } else {
+        console.log("NENHUMA variável SHOW_AVISO encontrada!");
     }
     
     console.log("Condição para mostrar a página de aviso:", deveMostrarAviso);
 
     // 2. MONTAR A LISTA DE PÁGINAS VÁLIDAS PARA ESTE MOMENTO
-    const paginasBase = ['/', '/clima'];
+    const paginasBase = ['/', '/clima', '/padlet'];
     let paginasAtuais = [...paginasBase];
 
     if (deveMostrarAviso) {
         paginasAtuais.push('/aviso-intervalo');
+        console.log("Página de aviso ADICIONADA à rotação!");
+    } else {
+        console.log("Página de aviso NÃO adicionada à rotação.");
     }
+    
+    console.log("Páginas na rotação:", paginasAtuais);
+    console.log("Página atual:", paginaAtualPath);
 
     // 3. DEFINIR TEMPO DE EXIBIÇÃO
-    const tempoDeExibicao = 15000; // 15 segundos
+    const tempoDeExibicao = 30000; // 15 segundos
 
     // 4. DECIDIR QUAL SERÁ A PRÓXIMA PÁGINA
     const indexDaPaginaAtual = paginasAtuais.indexOf(paginaAtualPath);

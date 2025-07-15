@@ -4,6 +4,7 @@ import platform
 import requests
 import subprocess
 import uuid
+import ipaddress
 from datetime import datetime, time, timedelta
 from flask import Flask, render_template, request, redirect, flash, url_for, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
@@ -11,6 +12,13 @@ from flask_sqlalchemy import SQLAlchemy
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import or_, and_
 from werkzeug.utils import secure_filename
+import os
+import json
+import requests
+import ipaddress
+import subprocess
+import platform
+import uuid
 
 # Carregar variáveis de ambiente do arquivo .env
 try:
@@ -52,17 +60,17 @@ HORARIOS_EVENTOS = {
     },
     # Intervalo da tarde: começa às 15h15, também com 20 minutos. Hora de relaxar um pouco!
     "intervalo da tarde": {
-        'inicio': time(15, 15), 
+        'inicio': time(15, 50), 
         'duracao': DURACAO_INTERVALO,  # 15:15 às 15:35
         'tipo': 'intervalo',
         'turno': 'tarde'
     },
     # Intervalo da noite: para quem estuda à noite, começa às 21h05.
     "intervalo da noite": {
-        'inicio': time(21, 5), 
-        'duracao': DURACAO_INTERVALO,  # 21:05 às 21:25
+        'inicio': time(17, 56), 
+        'duracao': DURACAO_INTERVALO,  # 17:56 às 18:16
         'tipo': 'intervalo',
-        'turno': 'noite'
+        'turno': 'tarde'  # CORRIGIDO: 17:56 está no turno da tarde
     },
     # Saídas: horários em que cada turno termina. Fique atento para não perder o horário!
     "saída manhã": {
@@ -107,12 +115,18 @@ def get_status_intervalo():
     agora_dt = datetime.now()
     hoje = agora_dt.date()
     turno_atual = get_turno_atual(agora_dt.time())
+    
+    # DEBUG: Log do horário atual e turno
+    print(f"🕐 DEBUG - Horário atual: {agora_dt.strftime('%H:%M:%S')}")
+    print(f"📚 DEBUG - Turno atual: {turno_atual}")
   
     # Filtra apenas os eventos do turno atual ou eventos sem turno definido
     eventos_do_turno = {
         nome: detalhes for nome, detalhes in HORARIOS_EVENTOS.items()
         if detalhes.get('turno') == turno_atual or detalhes.get('turno') is None
     }
+    
+    print(f"📅 DEBUG - Eventos do turno '{turno_atual}': {list(eventos_do_turno.keys())}")
     
     # Ordena os eventos para garantir que o próximo evento seja identificado corretamente
     eventos_ordenados = sorted(eventos_do_turno.items(), key=lambda item: item[1]['inicio'])
@@ -124,8 +138,16 @@ def get_status_intervalo():
         tempo_para_inicio = inicio_dt - agora_dt
         tempo_para_fim = fim_dt - agora_dt
         
+        print(f"⏰ DEBUG - Evento '{nome}':")
+        print(f"   - Início: {detalhes['inicio']} ({inicio_dt.strftime('%H:%M:%S')})")
+        print(f"   - Fim: {fim_dt.strftime('%H:%M:%S')}")
+        print(f"   - Tempo para início: {tempo_para_inicio}")
+        print(f"   - Tempo para fim: {tempo_para_fim}")
+        print(f"   - Tipo: {detalhes['tipo']}")
+        
         # CONDIÇÃO 1: Avisar 15 minutos antes do INÍCIO
         if timedelta(seconds=0) <= tempo_para_inicio <= AVISO_ANTECIPADO:
+            print(f"✅ DEBUG - CONDIÇÃO 1 ATIVADA: Aviso antecipado para '{nome}'")
             return {
                 "show_aviso": True,
                 "mensagem_status": f"{nome.title()}",
@@ -136,8 +158,10 @@ def get_status_intervalo():
         
         # CONDIÇÃO 2: DURANTE o intervalo
         if tempo_para_inicio <= timedelta(seconds=0) <= tempo_para_fim and detalhes['tipo'] == 'intervalo':
+            print(f"✅ DEBUG - CONDIÇÃO 2 ATIVADA: Durante o intervalo '{nome}'")
             # Se faltam 5 minutos ou menos para terminar
             if tempo_para_fim <= AVISO_FIM:
+                print(f"⚠️ DEBUG - Fim do intervalo em breve")
                 return {
                     "show_aviso": True,
                     "mensagem_status": f"O intervalo termina em",
@@ -146,6 +170,7 @@ def get_status_intervalo():
                     "turno": detalhes.get('turno', 'geral')
                 }
             else:
+                print(f"🔄 DEBUG - Intervalo em andamento")
                 return {
                     "show_aviso": True,
                     "mensagem_status": f"Intervalo em andamento",
@@ -156,6 +181,7 @@ def get_status_intervalo():
         
         # CONDIÇÃO 3: Avisar saída (5 min antes)
         if detalhes['tipo'] == 'saida' and timedelta(seconds=0) <= tempo_para_inicio <= timedelta(minutes=5):
+            print(f"✅ DEBUG - CONDIÇÃO 3 ATIVADA: Aviso de saída '{nome}'")
             minutos = int(tempo_para_inicio.total_seconds() // 60)
             return {
                 "show_aviso": True,
@@ -164,9 +190,12 @@ def get_status_intervalo():
                 "tipo_evento": "aviso_saida",
                 "turno": detalhes.get('turno', 'geral')
             }
+        
+        print(f"❌ DEBUG - Nenhuma condição atendida para '{nome}'")
     
     # Se chegou aqui, não há avisos ativos para mostrar
     if agora_dt.weekday() >= 5:  # Final de semana
+        print(f"📅 DEBUG - Final de semana detectado")
         return {
             "show_aviso": False,
             "mensagem_status": "Bom final de semana!",
@@ -175,6 +204,7 @@ def get_status_intervalo():
             "turno": None
         }
     elif turno_atual is None:  # Fora do horário escolar
+        print(f"🏫 DEBUG - Fora do horário escolar")
         return {
             "show_aviso": False,
             "mensagem_status": "Escola fechada - Próximo turno: 7h (manhã)",
@@ -183,6 +213,7 @@ def get_status_intervalo():
             "turno": None
         }
     else:  # Horário normal de aula
+        print(f"📖 DEBUG - Aula normal em andamento")
         return {
             "show_aviso": False,
             "mensagem_status": f"Aula em andamento - Turno da {turno_atual}",
@@ -358,6 +389,14 @@ def show_painel():
     ).order_by(Evento.data_inicio.desc()).all()
     
     status_intervalo = get_status_intervalo()
+    
+    # DEBUG: Log do status retornado
+    print(f"🚨 DEBUG PAINEL - Status do intervalo:")
+    print(f"   - show_aviso: {status_intervalo.get('show_aviso')}")
+    print(f"   - mensagem_status: {status_intervalo.get('mensagem_status')}")
+    print(f"   - tipo_evento: {status_intervalo.get('tipo_evento')}")
+    print("=" * 50)
+    
     return render_template(
         "painel.html",
         noticia=noticia,
@@ -365,6 +404,27 @@ def show_painel():
         **status_intervalo
     )
 
+
+@app.route("/padlet")
+def show_padlet():
+    noticia = Noticia.query.filter_by(status='ativa').all()
+    evento = Evento.query.filter(
+        Evento.status == 'ativo',
+        or_(
+            and_(Evento.imagem != None, Evento.imagem != ""),
+            and_(Evento.video != None, Evento.video != ""),
+            and_(Evento.titulo != None, Evento.titulo != ""),
+            and_(Evento.descricao != None, Evento.descricao != "")
+        )
+    ).order_by(Evento.data_inicio.desc()).all()
+    
+    status_intervalo = get_status_intervalo()
+    return render_template(
+        "padlet.html",
+        noticia=noticia,
+        evento=evento,
+        **status_intervalo
+    )
 
 @app.route('/dispositivos')
 @login_required
@@ -383,7 +443,6 @@ def validar_ip(ip):
         return False
     
     try:
-        import ipaddress
         ipaddress.ip_address(ip.strip())
         return True
     except ValueError:
@@ -1440,7 +1499,36 @@ def editar_evento_video(id):
                          dispositivos=dispositivos,
                          dispositivos_selecionados=dispositivos_selecionados)
 
+@app.route('/debug_intervalo')
+@login_required
+def debug_intervalo():
+    """Rota para debugar o status do intervalo em tempo real"""
+    status = get_status_intervalo()
+    agora = datetime.now()
+    
+    return {
+        'horario_atual': agora.strftime('%H:%M:%S'),
+        'data_atual': agora.strftime('%d/%m/%Y'),
+        'dia_semana': agora.weekday(),
+        'turno_atual': get_turno_atual(agora.time()),
+        'status_intervalo': status,
+        'horarios_configurados': {
+            nome: {
+                'inicio': str(detalhes['inicio']),
+                'duracao_minutos': int(detalhes['duracao'].total_seconds() / 60),
+                'tipo': detalhes['tipo'],
+                'turno': detalhes.get('turno')
+            }
+            for nome, detalhes in HORARIOS_EVENTOS.items()
+        },
+        'constantes': {
+            'AVISO_ANTECIPADO_minutos': int(AVISO_ANTECIPADO.total_seconds() / 60),
+            'AVISO_FIM_minutos': int(AVISO_FIM.total_seconds() / 60),
+            'DURACAO_INTERVALO_minutos': int(DURACAO_INTERVALO.total_seconds() / 60)
+        }
+    }
+
 if __name__ == '__main__':
     with app.app_context():
         fetch_and_cache_weather()
-    app.run(debug=True, use_reloader=False)-
+    app.run(debug=True, use_reloader=False)
