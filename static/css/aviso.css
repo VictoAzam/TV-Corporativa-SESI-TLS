@@ -4,8 +4,8 @@
   --primary-bg: #1c1c1c;
   --accent-red: #e01010f1;
   --accent-red-dark: #a80d0dcc;
-  --footer-green: #469C42;
-  --footer-gradient: linear-gradient(90deg, rgba(157, 255, 0, 0.67) 0%, rgba(0, 0, 0, 0) 100%);
+  --footer-green: #283fa7;
+  --footer-gradient: linear-gradient(90deg, rgba(0, 110, 255, 0.67)0%, rgba(0, 0, 0, 0) 100%);
   --white: #fff;
   --box-radius: 25px;
   --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);

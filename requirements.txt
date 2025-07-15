@@ -4,3 +4,4 @@ Flask-Login
 APScheduler
 requests
 Werkzeug
+python-dotenv

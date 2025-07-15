@@ -12,14 +12,25 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import or_, and_
 from werkzeug.utils import secure_filename
 
+# Carregar variáveis de ambiente do arquivo .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("⚠️  python-dotenv não encontrado. Instale com: pip install python-dotenv")
+    print("⚠️  Usando variáveis de ambiente do sistema...")
+
 app = Flask(__name__)
-app.secret_key = 'S3nh@IFMS'
 
-api_key = '4cd224af1c46c58cf99cdbd798e13931'
-city = 'Três Lagoas, br'
-CACHE_FILE = 'clima.json'
+# Configurações com valores padrão para fallback
+app.secret_key = os.getenv('SECRET_KEY', 'S3nh@IFMS')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dispositivos.db'
+api_key = os.getenv('API_KEY', '4cd224af1c46c58cf99cdbd798e13931')
+city = os.getenv('CITY', 'Três Lagoas, br')
+CACHE_FILE = os.getenv('CACHE_FILE', 'clima.json')
+
+# Configuração do banco de dados
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///dispositivos.db')
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
@@ -32,31 +43,28 @@ AVISO_ANTECIPADO = timedelta(minutes=15)
 AVISO_FIM = timedelta(minutes=5)          
 
 HORARIOS_EVENTOS = {
-    # MANHÃ
+    # Intervalo da manhã: acontece às 9h15 e dura 20 minutos. Ideal para aquele café!
     "primeiro intervalo": {
         'inicio': time(9, 15), 
         'duracao': DURACAO_INTERVALO,
         'tipo': 'intervalo',
         'turno': 'manha'
     },
-    
-    # TARDE
+    # Intervalo da tarde: começa às 15h15, também com 20 minutos. Hora de relaxar um pouco!
     "intervalo da tarde": {
         'inicio': time(15, 15), 
         'duracao': DURACAO_INTERVALO,  # 15:15 às 15:35
         'tipo': 'intervalo',
         'turno': 'tarde'
     },
-    
-    # NOITE
+    # Intervalo da noite: para quem estuda à noite, começa às 21h05.
     "intervalo da noite": {
         'inicio': time(21, 5), 
         'duracao': DURACAO_INTERVALO,  # 21:05 às 21:25
         'tipo': 'intervalo',
         'turno': 'noite'
     },
-    
-    # SAÍDAS 
+    # Saídas: horários em que cada turno termina. Fique atento para não perder o horário!
     "saída manhã": {
         'inicio': time(12, 35), 
         'duracao': timedelta(minutes=0),
@@ -78,7 +86,10 @@ HORARIOS_EVENTOS = {
 }
 
 def get_turno_atual(hora_atual):
-    """Determina qual turno está ativo baseado no horário"""
+    """
+    Função que descobre em qual turno estamos agora, com base no horário.
+    Retorna 'manha', 'tarde', 'noite' ou None se estiver fora do horário escolar.
+    """
     if time(7, 0) <= hora_atual < time(12, 30):
         return 'manha'
     elif time(13, 0) <= hora_atual < time(18, 50):
@@ -90,19 +101,20 @@ def get_turno_atual(hora_atual):
 
 def get_status_intervalo():
     """
-    Verifica o horário atual e retorna o status do próximo evento.
+    Esta função verifica o horário atual e retorna o status do próximo evento (intervalo ou saída).
+    Ela é útil para mostrar avisos na tela, como "Intervalo em andamento" ou "Saída em 5 minutos".
     """
     agora_dt = datetime.now()
     hoje = agora_dt.date()
     turno_atual = get_turno_atual(agora_dt.time())
   
-    # Filtrar eventos apenas do turno atual ou sem turno específico
+    # Filtra apenas os eventos do turno atual ou eventos sem turno definido
     eventos_do_turno = {
         nome: detalhes for nome, detalhes in HORARIOS_EVENTOS.items()
         if detalhes.get('turno') == turno_atual or detalhes.get('turno') is None
     }
     
-    # Ordena eventos por horário
+    # Ordena os eventos para garantir que o próximo evento seja identificado corretamente
     eventos_ordenados = sorted(eventos_do_turno.items(), key=lambda item: item[1]['inicio'])
     
     for nome, detalhes in eventos_ordenados:
@@ -153,7 +165,7 @@ def get_status_intervalo():
                 "turno": detalhes.get('turno', 'geral')
             }
     
-    # Se chegou aqui, não há avisos ativos
+    # Se chegou aqui, não há avisos ativos para mostrar
     if agora_dt.weekday() >= 5:  # Final de semana
         return {
             "show_aviso": False,
@@ -185,6 +197,10 @@ def load_user(user_id):
 
 
 def fetch_and_cache_weather():
+    """
+    Busca a previsão do tempo na API e salva em um arquivo local para evitar consultas repetidas.
+    Se houver algum erro de rede, mostra uma mensagem no terminal.
+    """
     url = f'https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units=metric&lang=pt_br'
     try:
         response = requests.get(url, verify=False)
@@ -198,6 +214,8 @@ def fetch_and_cache_weather():
 
 
 class Dispositivo(db.Model):
+    # Modelo que representa cada TV ou painel cadastrado no sistema.
+    # Inclui informações como IP, nome, local, status e observações.
     id = db.Column(db.Integer, primary_key=True)
     ip = db.Column(db.String(15), unique=True, nullable=False)
     nome = db.Column(db.String(50), nullable=False)
@@ -210,6 +228,7 @@ class Dispositivo(db.Model):
 
 
 class Evento(db.Model):
+    # Modelo para eventos que aparecem nas TVs, como avisos, imagens ou vídeos.
     id = db.Column(db.Integer, primary_key=True)
     dispositivo_id = db.Column(db.Integer, db.ForeignKey('dispositivo.id'), nullable=False)
     titulo = db.Column(db.String(50), nullable=False)
@@ -225,6 +244,7 @@ class Evento(db.Model):
 
 
 class Mensagem_Temporaria(db.Model):
+    # Modelo para mensagens temporárias que podem ser exibidas em um dispositivo por tempo limitado.
     id = db.Column(db.Integer, primary_key=True)
     dispositivo_id = db.Column(db.Integer, db.ForeignKey('dispositivo.id'), nullable=False)
     mensagem = db.Column(db.String(250), nullable=True)
@@ -237,6 +257,7 @@ class Mensagem_Temporaria(db.Model):
 
 
 class Noticia(db.Model):
+    # Modelo para notícias rápidas que aparecem nas TVs.
     id = db.Column(db.Integer, primary_key=True)
     dispositivo_id = db.Column(db.Integer, db.ForeignKey('dispositivo.id'), nullable=False)
     conteudo = db.Column(db.String(250), nullable=False)
@@ -247,6 +268,7 @@ class Noticia(db.Model):
 
 
 class Usuario(db.Model, UserMixin):
+    # Modelo para usuários do sistema (administração, login, etc).
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -351,39 +373,101 @@ def show_dispositivos():
     return render_template('dispositivos.html', dispositivos=dispositivos)
 
 
+# Função auxiliar para validar endereço IP
+def validar_ip(ip):
+    """
+    Valida se o endereço IP está em formato correto.
+    Retorna True se válido, False caso contrário.
+    """
+    if not ip or not isinstance(ip, str):
+        return False
+    
+    try:
+        import ipaddress
+        ipaddress.ip_address(ip.strip())
+        return True
+    except ValueError:
+        return False
+
+# Função auxiliar para sanitizar entrada de texto
+def sanitizar_texto(texto, max_length=250):
+    """
+    Remove caracteres perigosos e limita o tamanho do texto.
+    Retorna o texto sanitizado.
+    """
+    if not texto:
+        return ""
+    
+    # Remove caracteres de controle e limita o tamanho
+    texto_limpo = ''.join(char for char in str(texto) if ord(char) >= 32 or char in '\n\t')
+    return texto_limpo.strip()[:max_length]
+
+# Função auxiliar para validar status
+def validar_status(status, valores_validos=['ativo', 'inativo', 'manutencao']):
+    """
+    Verifica se o status está entre os valores válidos.
+    Retorna o status se válido, 'ativo' como padrão caso contrário.
+    """
+    if not status or status not in valores_validos:
+        return 'ativo'  # Valor padrão seguro
+    return status
+
+
 @app.route('/adicionar_dispositivo', methods=['GET', 'POST'])
 @login_required
 def adicionar_dispositivo():
     if request.method == 'POST':
-        nome = request.form['nome']
-        local = request.form['local']
-        ip = request.form['ip']
-        status = request.form['status']
-        observacoes = request.form.get('observacoes', '')
+        # Validação defensiva de entrada
+        nome = sanitizar_texto(request.form.get('nome', '').strip(), 50)
+        local = sanitizar_texto(request.form.get('local', '').strip(), 50)
+        ip = request.form.get('ip', '').strip()
+        status = validar_status(request.form.get('status', ''))
+        observacoes = sanitizar_texto(request.form.get('observacoes', ''), 500)
+        
+        # Verificações de segurança básicas
+        if not nome:
+            flash('Erro: Nome do dispositivo é obrigatório!', 'error')
+            return render_template('gerenciador_deconteudo/adicionar_dispositivo.html')
+        
+        if not local:
+            flash('Erro: Local do dispositivo é obrigatório!', 'error')
+            return render_template('gerenciador_deconteudo/adicionar_dispositivo.html')
+        
+        if not validar_ip(ip):
+            flash('Erro: Endereço IP inválido! Use o formato correto (ex: 192.168.1.100)', 'error')
+            return render_template('gerenciador_deconteudo/adicionar_dispositivo.html')
         
         # Verificar se IP já existe
-        dispositivo_existente = Dispositivo.query.filter_by(ip=ip).first()
-        if dispositivo_existente:
-            flash('Erro: Já existe um dispositivo com este IP!', 'error')
-            return render_template('adicionar_dispositivo.html')
-        
-        # Criar novo dispositivo
-        novo_dispositivo = Dispositivo(
-            nome=nome,
-            local=local,
-            ip=ip,
-            status=status,
-            observacoes=observacoes
-        )
-        
         try:
+            dispositivo_existente = Dispositivo.query.filter_by(ip=ip).first()
+            if dispositivo_existente:
+                flash('Erro: Já existe um dispositivo com este IP!', 'error')
+                return render_template('gerenciador_deconteudo/adicionar_dispositivo.html')
+        except Exception as e:
+            flash(f'Erro ao verificar IP existente: {str(e)}', 'error')
+            return render_template('gerenciador_deconteudo/adicionar_dispositivo.html')
+        
+        # Criar novo dispositivo com validação adicional
+        try:
+            novo_dispositivo = Dispositivo(
+                nome=nome,
+                local=local,
+                ip=ip,
+                status=status,
+                observacoes=observacoes
+            )
+            
             db.session.add(novo_dispositivo)
             db.session.commit()
             flash(f'Dispositivo {nome} adicionado com sucesso!', 'success')
             return redirect(url_for('listar_dispositivos'))
+            
         except Exception as e:
             db.session.rollback()
-            flash(f'Erro ao adicionar dispositivo: {str(e)}', 'error')
+            # Log do erro para depuração (em produção, usar logging apropriado)
+            print(f"Erro ao adicionar dispositivo: {str(e)}")
+            flash('Erro interno do servidor. Tente novamente mais tarde.', 'error')
+            return render_template('gerenciador_deconteudo/adicionar_dispositivo.html')
     
     return render_template('gerenciador_deconteudo/adicionar_dispositivo.html')
 
@@ -396,29 +480,63 @@ def listar_dispositivos():
 @app.route('/editar_dispositivo/<int:dispositivo_id>', methods=['GET', 'POST'])
 @login_required
 def editar_dispositivo(dispositivo_id):
+    # Validação de entrada básica
+    if not isinstance(dispositivo_id, int) or dispositivo_id <= 0:
+        return jsonify({
+            'sucesso': False, 
+            'erro': 'ID do dispositivo inválido!'
+        })
+    
     dispositivo = Dispositivo.query.get_or_404(dispositivo_id)
     
     if request.method == 'POST':
-        nome = request.form['nome']
-        local = request.form['local']
-        ip = request.form['ip']
-        status = request.form.get('status', 'ativo')
-        observacoes = request.form.get('observacoes', '')
+        # Validação defensiva de entrada
+        nome = sanitizar_texto(request.form.get('nome', '').strip(), 50)
+        local = sanitizar_texto(request.form.get('local', '').strip(), 50)
+        ip = request.form.get('ip', '').strip()
+        status = validar_status(request.form.get('status', 'ativo'))
+        observacoes = sanitizar_texto(request.form.get('observacoes', ''), 500)
         
-        # Verificar se IP já existe (exceto no dispositivo atual)
-        dispositivo_existente = Dispositivo.query.filter(
-            Dispositivo.ip == ip, 
-            Dispositivo.id != dispositivo_id
-        ).first()
-        
-        if dispositivo_existente:
+        # Verificações de segurança básicas
+        if not nome:
             return jsonify({
                 'sucesso': False, 
-                'erro': 'Já existe um dispositivo com este IP!'
+                'erro': 'Nome do dispositivo é obrigatório!'
+            })
+        
+        if not local:
+            return jsonify({
+                'sucesso': False, 
+                'erro': 'Local do dispositivo é obrigatório!'
+            })
+        
+        if not validar_ip(ip):
+            return jsonify({
+                'sucesso': False, 
+                'erro': 'Endereço IP inválido! Use o formato correto (ex: 192.168.1.100)'
+            })
+        
+        # Verificar se IP já existe (exceto no dispositivo atual)
+        try:
+            dispositivo_existente = Dispositivo.query.filter(
+                Dispositivo.ip == ip, 
+                Dispositivo.id != dispositivo_id
+            ).first()
+            
+            if dispositivo_existente:
+                return jsonify({
+                    'sucesso': False, 
+                    'erro': 'Já existe um dispositivo com este IP!'
+                })
+        except Exception as e:
+            print(f"Erro ao verificar IP existente: {str(e)}")
+            return jsonify({
+                'sucesso': False, 
+                'erro': 'Erro interno ao verificar dados. Tente novamente.'
             })
         
         try:
-            # Atualizar dados do dispositivo
+            # Atualizar dados do dispositivo com validação
             dispositivo.nome = nome
             dispositivo.local = local
             dispositivo.ip = ip
@@ -431,11 +549,14 @@ def editar_dispositivo(dispositivo_id):
                 'sucesso': True, 
                 'mensagem': f'Dispositivo {nome} atualizado com sucesso!'
             })
+            
         except Exception as e:
             db.session.rollback()
+            # Log do erro para depuração (em produção, usar logging apropriado)
+            print(f"Erro ao atualizar dispositivo: {str(e)}")
             return jsonify({
                 'sucesso': False, 
-                'erro': f'Erro ao atualizar dispositivo: {str(e)}'
+                'erro': 'Erro interno do servidor. Tente novamente mais tarde.'
             })
     
     # GET - retorna os dados do dispositivo
@@ -470,28 +591,45 @@ def excluir_dispositivo(dispositivo_id):
 @app.route('/testar_dispositivo/<ip>')
 @login_required
 def testar_dispositivo(ip):
+    # Validação defensiva do IP
+    if not validar_ip(ip):
+        return jsonify({
+            'sucesso': False, 
+            'erro': 'Endereço IP inválido!'
+        })
+    
     try:
-        # Usar comando ping apropriado para Windows ou Linux
+        # Sanitizar o IP para evitar injeção de comandos
+        ip_limpo = ip.strip()
+        
+        # Usar comando ping apropriado para Windows ou Linux com timeout limitado
         if platform.system().lower() == 'windows':
-            result = subprocess.run(['ping', '-n', '1', '-w', '3000', ip], 
-                                  capture_output=True, text=True)
+            result = subprocess.run(['ping', '-n', '1', '-w', '3000', ip_limpo], 
+                                  capture_output=True, text=True, timeout=5)
         else:
-            result = subprocess.run(['ping', '-c', '1', '-W', '3', ip], 
-                                  capture_output=True, text=True)
+            result = subprocess.run(['ping', '-c', '1', '-W', '3', ip_limpo], 
+                                  capture_output=True, text=True, timeout=5)
         
         if result.returncode == 0:
-            # Atualizar última conexão
-            dispositivo = Dispositivo.query.filter_by(ip=ip).first()
-            if dispositivo:
-                dispositivo.ultima_conexao = datetime.now()
-                db.session.commit()
+            # Atualizar última conexão com proteção contra erros
+            try:
+                dispositivo = Dispositivo.query.filter_by(ip=ip_limpo).first()
+                if dispositivo:
+                    dispositivo.ultima_conexao = datetime.now()
+                    db.session.commit()
+            except Exception as db_error:
+                print(f"Erro ao atualizar última conexão: {str(db_error)}")
+                # Continua mesmo se não conseguir atualizar o banco
             
             return jsonify({'sucesso': True, 'status': 'Online'})
         else:
             return jsonify({'sucesso': False, 'erro': 'Dispositivo não responde ao ping'})
     
+    except subprocess.TimeoutExpired:
+        return jsonify({'sucesso': False, 'erro': 'Timeout ao testar conexão'})
     except Exception as e:
-        return jsonify({'sucesso': False, 'erro': str(e)})
+        print(f"Erro ao testar dispositivo: {str(e)}")
+        return jsonify({'sucesso': False, 'erro': 'Erro interno ao testar conexão'})
     
 @app.route('/enviar_conteudo/<int:dispositivo_id>')
 @login_required
@@ -601,38 +739,58 @@ def admin():
                 flash("Formato de data de fim inválido.", "danger")
                 return redirect(url_for('admin'))
 
-        # Processar baseado no tipo de conteúdo
+        # Processar baseado no tipo de conteúdo com validação defensiva
         if tipo_conteudo == 'noticia':
-            # NOTÍCIA RÁPIDA
-            conteudo_noticia = request.form.get('conteudo_noticia')
+            # NOTÍCIA RÁPIDA - com sanitização
+            conteudo_noticia = request.form.get('conteudo_noticia', '').strip()
             
-            if not conteudo_noticia or conteudo_noticia.strip() == '':
+            if not conteudo_noticia:
                 flash("Você deve preencher o texto da notícia rápida.", "danger")
                 return redirect(url_for('admin'))
             
-            conteudo_limpo = conteudo_noticia.strip()
+            # Sanitizar conteúdo da notícia
+            conteudo_limpo = sanitizar_texto(conteudo_noticia, 250)
             
-            # Validar tamanho do conteúdo
+            # Validar tamanho do conteúdo após sanitização
             if len(conteudo_limpo) > 250:
                 flash("O texto da notícia é muito longo (máximo 250 caracteres).", "danger")
                 return redirect(url_for('admin'))
             
-            # Verificar se já existe uma notícia idêntica nos últimos 5 segundos (prevenção contra duplicação)
-            cinco_segundos_atras = datetime.now() - timedelta(seconds=5)
-            noticia_recente = Noticia.query.filter(
-                Noticia.conteudo == conteudo_limpo,
-                Noticia.data_inicio >= cinco_segundos_atras
-            ).first()
-            
-            if noticia_recente:
-                flash("Esta notícia já foi criada recentemente.", "warning")
+            if len(conteudo_limpo) < 3:
+                flash("O texto da notícia é muito curto (mínimo 3 caracteres).", "danger")
                 return redirect(url_for('admin'))
             
+            # Verificar se já existe uma notícia idêntica nos últimos 5 segundos (prevenção contra duplicação)
+            try:
+                cinco_segundos_atras = datetime.now() - timedelta(seconds=5)
+                noticia_recente = Noticia.query.filter(
+                    Noticia.conteudo == conteudo_limpo,
+                    Noticia.data_inicio >= cinco_segundos_atras
+                ).first()
+                
+                if noticia_recente:
+                    flash("Esta notícia já foi criada recentemente.", "warning")
+                    return redirect(url_for('admin'))
+            except Exception as e:
+                print(f"Erro ao verificar notícias duplicadas: {str(e)}")
+                # Continua mesmo se a verificação falhar
+            
+            # Processar cada dispositivo com validação
             for id_dispositivo in dispositivos_ids:
-                # Validar se o dispositivo existe
-                dispositivo = Dispositivo.query.get(id_dispositivo)
-                if not dispositivo:
-                    flash(f"Dispositivo ID {id_dispositivo} não foi encontrado.", "danger")
+                try:
+                    # Validar se o ID é um número válido
+                    dispositivo_id = int(id_dispositivo)
+                    if dispositivo_id <= 0:
+                        flash(f"ID de dispositivo inválido: {id_dispositivo}", "danger")
+                        return redirect(url_for('admin'))
+                    
+                    # Validar se o dispositivo existe
+                    dispositivo = Dispositivo.query.get(dispositivo_id)
+                    if not dispositivo:
+                        flash(f"Dispositivo ID {dispositivo_id} não foi encontrado.", "danger")
+                        return redirect(url_for('admin'))
+                except (ValueError, TypeError):
+                    flash(f"ID de dispositivo inválido: {id_dispositivo}", "danger")
                     return redirect(url_for('admin'))
                 
                 nova_noticia = Noticia(
