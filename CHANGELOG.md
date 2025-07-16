@@ -5,6 +5,23 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [2.2.0] - 2025-01-15
+
+### Modificado
+- **Horários de intervalo** atualizados conforme nova grade curricular:
+  - Fund I manhã: 8h20-8h55 (35 min)
+  - Fund II e Médio manhã: 9h30-9h45 (15 min)  
+  - Fund I tarde: 14h40-14h55 (15 min)
+  - Fund II tarde: 15h30-15h45 (15 min)
+  - Contraturno: 14h00 (horário de referência)
+- **Mensagens de aviso** agora mostram o nome específico do intervalo:
+  - "Intervalo Fund I - Manhã em andamento"
+  - "Intervalo Fund II e Médio - Manhã em andamento"
+  - "Intervalo Fund I - Tarde em andamento"
+  - "Intervalo Fund II - Tarde em andamento"
+- **Documentação** atualizada com novos horários
+- **Sistema de avisos** adaptado para múltiplos intervalos por turno
+
 ## [2.1.0] - 2025-07-15
 
 ### Adicionado

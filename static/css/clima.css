@@ -190,3 +190,29 @@ footer {
         margin-top: 2rem;
     }
 }
+
+/* --- Melhorias de responsividade para telas pequenas --- */
+@media (max-width: 480px) {
+  body, .container, .container-painel {
+    padding: 0.5rem 0.1rem !important;
+  }
+  .box, .painel, .card, .content, .main {
+    padding: 0.7rem 0.2rem !important;
+    min-height: 120px;
+    font-size: 0.95em;
+    max-width: 99vw;
+  }
+  h1, .box h1, #status-evento {
+    font-size: 1.1em !important;
+    word-break: break-word;
+  }
+  .tempo, #countdown-timer {
+    font-size: 1.1em !important;
+  }
+  .noticia-rapida, .footer, footer {
+    font-size: 0.9em !important;
+    padding: 0.2rem 0.5rem !important;
+    border-radius: 0.7rem;
+    height: 40px !important;
+  }
+}

@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function() {
     console.log("Página atual:", paginaAtualPath);
 
     // 3. DEFINIR TEMPO DE EXIBIÇÃO
-    const tempoDeExibicao = 30000; // 15 segundos
+    const tempoDeExibicao = 30000; // 30 segundos
 
     // 4. DECIDIR QUAL SERÁ A PRÓXIMA PÁGINA
     const indexDaPaginaAtual = paginasAtuais.indexOf(paginaAtualPath);

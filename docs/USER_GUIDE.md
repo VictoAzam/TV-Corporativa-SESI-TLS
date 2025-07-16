@@ -266,15 +266,17 @@ O sistema monitora automaticamente os horários escolares e exibe avisos:
 ### Horários Configurados
 
 **Turno da Manhã:**
-- Intervalo: 9h15 às 9h35
+- Fund I: 8h20 às 8h55 (35 min)
+- Fund II e Médio: 9h30 às 9h45 (15 min)
 - Saída: 12h35
 
 **Turno da Tarde:**
-- Intervalo: 15h50 às 16h10
+- Contraturno: 14h00
+- Fund I: 14h40 às 14h55 (15 min)
+- Fund II: 15h30 às 15h45 (15 min)
 - Saída: 18h35
 
 **Turno da Noite:**
-- Intervalo: 21h05 às 21h25
 - Saída: 22h50
 
 **Nota:** Horários podem ser ajustados pela administração

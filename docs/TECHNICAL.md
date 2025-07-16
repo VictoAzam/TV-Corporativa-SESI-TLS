@@ -158,18 +158,39 @@ Database Record → Template Display
 ### Horários Personalizáveis
 ```python
 HORARIOS_EVENTOS = {
-    "primeiro intervalo": {
-        'inicio': time(9, 15),
-        'duracao': timedelta(minutes=20),
+    # Fund I manhã: 8h20-8h55 (35 min)
+    "intervalo fund1 manha": {
+        'inicio': time(8, 20),
+        'duracao': timedelta(minutes=35),
         'tipo': 'intervalo',
         'turno': 'manha'
+    },
+    # Fund II e Médio manhã: 9h30-9h45 (15 min)
+    "intervalo fund2 medio manha": {
+        'inicio': time(9, 30),
+        'duracao': timedelta(minutes=15),
+        'tipo': 'intervalo',
+        'turno': 'manha'
+    },
+    # Fund I tarde: 14h40-14h55 (15 min)
+    "intervalo fund1 tarde": {
+        'inicio': time(14, 40),
+        'duracao': timedelta(minutes=15),
+        'tipo': 'intervalo',
+        'turno': 'tarde'
+    },
+    # Fund II tarde: 15h30-15h45 (15 min)
+    "intervalo fund2 tarde": {
+        'inicio': time(15, 30),
+        'duracao': timedelta(minutes=15),
+        'tipo': 'intervalo',
+        'turno': 'tarde'
     }
 }
 
 # Constantes configuráveis
-DURACAO_INTERVALO = timedelta(minutes=20)
-AVISO_ANTECIPADO = timedelta(minutes=15)
-AVISO_FIM = timedelta(minutes=5)
+AVISO_ANTECIPADO = timedelta(minutes=15)  # Aviso antes do intervalo
+AVISO_FIM = timedelta(minutes=5)          # Aviso antes do fim
 ```
 
 ### Agendamento de Clima

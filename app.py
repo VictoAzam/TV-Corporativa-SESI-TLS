@@ -46,52 +46,161 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 
-DURACAO_INTERVALO = timedelta(minutes=20)
-AVISO_ANTECIPADO = timedelta(minutes=15)  
-AVISO_FIM = timedelta(minutes=5)          
+# =====================================================
+# CONFIGURAÇÕES DE HORÁRIOS ESCOLARES - PROGRAMAÇÃO DEFENSIVA
+# =====================================================
+# Configurações centralizadas para facilitar manutenção
+AVISO_ANTECIPADO = timedelta(minutes=15)  # Avisar 15 min antes dos eventos
+AVISO_FIM = timedelta(minutes=5)          # Avisar 5 min antes do fim
+AVISO_ENTRADA = timedelta(minutes=15)     # Avisar 15 min antes da entrada
+AVISO_SAIDA = timedelta(minutes=15)        # Avisar 15 min antes da saída
 
+# Validação de configurações
+try:
+    assert AVISO_ANTECIPADO.total_seconds() > 0, "AVISO_ANTECIPADO deve ser positivo"
+    assert AVISO_FIM.total_seconds() > 0, "AVISO_FIM deve ser positivo"
+    assert AVISO_ENTRADA.total_seconds() > 0, "AVISO_ENTRADA deve ser positivo"
+    assert AVISO_SAIDA.total_seconds() > 0, "AVISO_SAIDA deve ser positivo"
+except AssertionError as e:
+    print(f"⚠️ ERRO DE CONFIGURAÇÃO: {e}")
+    # Valores padrão seguros
+    AVISO_ANTECIPADO = timedelta(minutes=15)
+    AVISO_FIM = timedelta(minutes=5)
+    AVISO_ENTRADA = timedelta(minutes=15)
+    AVISO_SAIDA = timedelta(minutes=15)
+
+def validar_horario_evento(horario_dict):
+    """
+    Função de programação defensiva para validar configurações de horários.
+    Retorna True se válido, False caso contrário.
+    """
+    try:
+        if not isinstance(horario_dict, dict):
+            return False
+        
+        campos_obrigatorios = ['inicio', 'duracao', 'tipo', 'turno']
+        for campo in campos_obrigatorios:
+            if campo not in horario_dict:
+                return False
+        
+        # Validar tipos
+        if not isinstance(horario_dict['inicio'], time):
+            return False
+        if not isinstance(horario_dict['duracao'], timedelta):
+            return False
+        if horario_dict['tipo'] not in ['intervalo', 'entrada', 'saida', 'evento']:
+            return False
+        if horario_dict['turno'] not in ['manha', 'tarde', 'noite', None]:
+            return False
+            
+        # Validar lógica de duração
+        if horario_dict['duracao'].total_seconds() < 0:
+            return False
+            
+        return True
+    except Exception as e:
+        print(f"⚠️ Erro na validação de horário: {e}")
+        return False
+
+# Horários atualizados conforme informações da escola
 HORARIOS_EVENTOS = {
-    # Intervalo da manhã: acontece às 9h15 e dura 20 minutos. Ideal para aquele café!
-    "primeiro intervalo": {
-        'inicio': time(9, 15), 
-        'duracao': DURACAO_INTERVALO,
-        'tipo': 'intervalo',
-        'turno': 'manha'
+    # ========== ENTRADAS ==========
+    "entrada geral": {
+        'inicio': time(7, 0),
+        'duracao': timedelta(minutes=0),
+        'tipo': 'entrada',
+        'turno': 'manha',
+        'descricao': 'Entrada para todos os alunos'
     },
-    # Intervalo da tarde: começa às 15h15, também com 20 minutos. Hora de relaxar um pouco!
-    "intervalo da tarde": {
-        'inicio': time(15, 50), 
-        'duracao': DURACAO_INTERVALO,  # 15:15 às 15:35
-        'tipo': 'intervalo',
-        'turno': 'tarde'
+    
+    "inicio contraturno": {
+        'inicio': time(14, 0),
+        'duracao': timedelta(minutes=0),
+        'tipo': 'entrada',
+        'turno': 'tarde',
+        'descricao': 'Início do Contraturno'
     },
-    # Intervalo da noite: para quem estuda à noite, começa às 21h05.
-    "intervalo da noite": {
-        'inicio': time(17, 56), 
-        'duracao': DURACAO_INTERVALO,  # 17:56 às 18:16
+    
+    # ========== INTERVALOS MANHÃ ==========
+    "intervalo fund1 manha": {
+        'inicio': time(8, 20), 
+        'duracao': timedelta(minutes=35),  # 08h20 às 08h55
         'tipo': 'intervalo',
-        'turno': 'tarde'  # CORRIGIDO: 17:56 está no turno da tarde
+        'turno': 'manha',
+        'descricao': 'Intervalo Fundamental I - Manhã'
     },
-    # Saídas: horários em que cada turno termina. Fique atento para não perder o horário!
-    "saída manhã": {
-        'inicio': time(12, 35), 
+    
+    "intervalo fund2 medio manha": {
+        'inicio': time(9, 30), 
+        'duracao': timedelta(minutes=15),  # 09h30 às 09h45
+        'tipo': 'intervalo',
+        'turno': 'manha',
+        'descricao': 'Intervalo Fundamental II e Médio - Manhã'
+    },
+    
+    # ========== INTERVALOS TARDE ========== 
+    "intervalo contraturno tarde": {
+        'inicio': time(14, 0), 
+        'duracao': timedelta(minutes=30),  # 14h00 às 14h30
+        'tipo': 'intervalo',
+        'turno': 'tarde',
+        'descricao': 'Intervalo Contraturno - Tarde'
+    },
+    "intervalo fund1 tarde": {
+        'inicio': time(14, 40), 
+        'duracao': timedelta(minutes=15),  # 14h40 às 14h55
+        'tipo': 'intervalo',
+        'turno': 'tarde',
+        'descricao': 'Intervalo Fundamental I - Tarde'
+    },
+    
+    "intervalo fund2 tarde": {
+        'inicio': time(15, 30), 
+        'duracao': timedelta(minutes=15),  # 15h30 às 15h45
+        'tipo': 'intervalo',
+        'turno': 'tarde',
+        'descricao': 'Intervalo Fundamental II - Tarde'
+    },
+    
+    # ========== SAÍDAS ==========
+    "saida educacao infantil": {
+        'inicio': time(11, 15),
         'duracao': timedelta(minutes=0),
         'tipo': 'saida',
-        'turno': 'manha'
+        'turno': 'manha',
+        'descricao': 'Saída Educação Infantil'
     },
-    "saída tarde": {
-        'inicio': time(18, 35), 
+    
+    "saida fundamental1": {
+        'inicio': time(11, 25),
         'duracao': timedelta(minutes=0),
         'tipo': 'saida',
-        'turno': 'tarde'
+        'turno': 'manha',
+        'descricao': 'Saída Fundamental I'
     },
-    "saída noite": {
-        'inicio': time(22, 50), 
+    
+    "saida fundamental2 medio": {
+        'inicio': time(12, 15),
         'duracao': timedelta(minutes=0),
         'tipo': 'saida',
-        'turno': 'noite'
+        'turno': 'manha',
+        'descricao': 'Saída Fundamental II e Ensino Médio'
     }
 }
+
+# Validação defensiva dos horários configurados
+print("🔍 Validando configurações de horários...")
+horarios_validos = {}
+for nome, config in HORARIOS_EVENTOS.items():
+    if validar_horario_evento(config):
+        horarios_validos[nome] = config
+        print(f"✅ Horário '{nome}' validado com sucesso")
+    else:
+        print(f"❌ Horário '{nome}' possui configuração inválida - IGNORADO")
+
+# Substituir pela versão validada
+HORARIOS_EVENTOS = horarios_validos
+print(f"✅ {len(HORARIOS_EVENTOS)} horários válidos carregados")
 
 def get_turno_atual(hora_atual):
     """
@@ -100,7 +209,7 @@ def get_turno_atual(hora_atual):
     """
     if time(7, 0) <= hora_atual < time(12, 30):
         return 'manha'
-    elif time(13, 0) <= hora_atual < time(18, 50):
+    elif time(13, 0) <= hora_atual < time(18, 50):  # Tarde começa às 13h00
         return 'tarde'
     elif time(18, 50) <= hora_atual <= time(23, 59) or time(0, 0) <= hora_atual < time(1, 0):
         return 'noite'
@@ -112,114 +221,195 @@ def get_status_intervalo():
     Esta função verifica o horário atual e retorna o status do próximo evento (intervalo ou saída).
     Ela é útil para mostrar avisos na tela, como "Intervalo em andamento" ou "Saída em 5 minutos".
     """
-    agora_dt = datetime.now()
-    hoje = agora_dt.date()
-    turno_atual = get_turno_atual(agora_dt.time())
-    
-    # DEBUG: Log do horário atual e turno
-    print(f"🕐 DEBUG - Horário atual: {agora_dt.strftime('%H:%M:%S')}")
-    print(f"📚 DEBUG - Turno atual: {turno_atual}")
-  
-    # Filtra apenas os eventos do turno atual ou eventos sem turno definido
-    eventos_do_turno = {
-        nome: detalhes for nome, detalhes in HORARIOS_EVENTOS.items()
-        if detalhes.get('turno') == turno_atual or detalhes.get('turno') is None
-    }
-    
-    print(f"📅 DEBUG - Eventos do turno '{turno_atual}': {list(eventos_do_turno.keys())}")
-    
-    # Ordena os eventos para garantir que o próximo evento seja identificado corretamente
-    eventos_ordenados = sorted(eventos_do_turno.items(), key=lambda item: item[1]['inicio'])
-    
-    for nome, detalhes in eventos_ordenados:
-        inicio_dt = datetime.combine(hoje, detalhes['inicio'])
-        fim_dt = inicio_dt + detalhes['duracao']
+    try:
+        agora_dt = datetime.now()
+        hoje = agora_dt.date()
+        turno_atual = get_turno_atual(agora_dt.time())
         
-        tempo_para_inicio = inicio_dt - agora_dt
-        tempo_para_fim = fim_dt - agora_dt
-        
-        print(f"⏰ DEBUG - Evento '{nome}':")
-        print(f"   - Início: {detalhes['inicio']} ({inicio_dt.strftime('%H:%M:%S')})")
-        print(f"   - Fim: {fim_dt.strftime('%H:%M:%S')}")
-        print(f"   - Tempo para início: {tempo_para_inicio}")
-        print(f"   - Tempo para fim: {tempo_para_fim}")
-        print(f"   - Tipo: {detalhes['tipo']}")
-        
-        # CONDIÇÃO 1: Avisar 15 minutos antes do INÍCIO
-        if timedelta(seconds=0) <= tempo_para_inicio <= AVISO_ANTECIPADO:
-            print(f"✅ DEBUG - CONDIÇÃO 1 ATIVADA: Aviso antecipado para '{nome}'")
+        # DEBUG: Log do horário atual e turno
+        print(f"🕐 DEBUG - Horário atual: {agora_dt.strftime('%H:%M:%S')}")
+        print(f"📚 DEBUG - Turno atual: {turno_atual}")
+      
+        # Validação defensiva - verificar se temos horários configurados
+        if not HORARIOS_EVENTOS:
+            print("⚠️ ERRO: Nenhum horário de evento configurado")
             return {
-                "show_aviso": True,
-                "mensagem_status": f"{nome.title()}",
-                "tempo_restante_segundos": tempo_para_inicio.total_seconds(),
-                "tipo_evento": "aviso_inicio",
-                "turno": detalhes.get('turno', 'geral')
+                "show_aviso": False,
+                "mensagem_status": "Sistema sem horários configurados",
+                "tempo_restante_segundos": None,
+                "tipo_evento": "erro_configuracao",
+                "turno": None
             }
         
-        # CONDIÇÃO 2: DURANTE o intervalo
-        if tempo_para_inicio <= timedelta(seconds=0) <= tempo_para_fim and detalhes['tipo'] == 'intervalo':
-            print(f"✅ DEBUG - CONDIÇÃO 2 ATIVADA: Durante o intervalo '{nome}'")
-            # Se faltam 5 minutos ou menos para terminar
-            if tempo_para_fim <= AVISO_FIM:
-                print(f"⚠️ DEBUG - Fim do intervalo em breve")
-                return {
-                    "show_aviso": True,
-                    "mensagem_status": f"O intervalo termina em",
-                    "tempo_restante_segundos": tempo_para_fim.total_seconds(),
-                    "tipo_evento": "fim_intervalo",
-                    "turno": detalhes.get('turno', 'geral')
-                }
-            else:
-                print(f"🔄 DEBUG - Intervalo em andamento")
-                return {
-                    "show_aviso": True,
-                    "mensagem_status": f"Intervalo em andamento",
-                    "tempo_restante_segundos": tempo_para_fim.total_seconds(),
-                    "tipo_evento": "durante_intervalo",
-                    "turno": detalhes.get('turno', 'geral')
-                }
+        # Filtra apenas os eventos do turno atual ou eventos sem turno definido
+        eventos_do_turno = {
+            nome: detalhes for nome, detalhes in HORARIOS_EVENTOS.items()
+            if detalhes.get('turno') == turno_atual or detalhes.get('turno') is None
+        }
         
-        # CONDIÇÃO 3: Avisar saída (5 min antes)
-        if detalhes['tipo'] == 'saida' and timedelta(seconds=0) <= tempo_para_inicio <= timedelta(minutes=5):
-            print(f"✅ DEBUG - CONDIÇÃO 3 ATIVADA: Aviso de saída '{nome}'")
-            minutos = int(tempo_para_inicio.total_seconds() // 60)
+        print(f"📅 DEBUG - Eventos do turno '{turno_atual}': {list(eventos_do_turno.keys())}")
+        
+        # Ordena os eventos para garantir que o próximo evento seja identificado corretamente
+        eventos_ordenados = sorted(eventos_do_turno.items(), key=lambda item: item[1]['inicio'])
+        
+        for nome, detalhes in eventos_ordenados:
+            try:
+                inicio_dt = datetime.combine(hoje, detalhes['inicio'])
+                fim_dt = inicio_dt + detalhes['duracao']
+                
+                tempo_para_inicio = inicio_dt - agora_dt
+                tempo_para_fim = fim_dt - agora_dt
+                
+                print(f"⏰ DEBUG - Evento '{nome}':")
+                print(f"   - Início: {detalhes['inicio']} ({inicio_dt.strftime('%H:%M:%S')})")
+                print(f"   - Fim: {fim_dt.strftime('%H:%M:%S')}")
+                print(f"   - Tempo para início: {tempo_para_inicio}")
+                print(f"   - Tempo para fim: {tempo_para_fim}")
+                print(f"   - Tipo: {detalhes['tipo']}")
+                
+                # CONDIÇÃO 1: Avisar entrada (10 min antes)
+                if detalhes['tipo'] == 'entrada' and timedelta(seconds=0) <= tempo_para_inicio <= AVISO_ENTRADA:
+                    print(f"✅ DEBUG - CONDIÇÃO ENTRADA ATIVADA: Aviso de entrada '{nome}'")
+                    minutos = int(tempo_para_inicio.total_seconds() // 60)
+                    
+                    # Mapear nomes das entradas para exibição mais amigável
+                    nomes_entradas = {
+                        "entrada geral": "Entrada Geral",
+                        "inicio contraturno": "Início do Contraturno"
+                    }
+                    
+                    nome_exibicao = nomes_entradas.get(nome, detalhes.get('descricao', nome.title()))
+                    
+                    return {
+                        "show_aviso": True,
+                        "mensagem_status": f"{nome_exibicao} em {minutos} minutos",
+                        "tempo_restante_segundos": tempo_para_inicio.total_seconds(),
+                        "tipo_evento": "aviso_entrada",
+                        "turno": detalhes.get('turno', 'geral')
+                    }
+                
+                # CONDIÇÃO 2: Avisar 15 minutos antes do INÍCIO (intervalos)
+                if detalhes['tipo'] == 'intervalo' and timedelta(seconds=0) <= tempo_para_inicio <= AVISO_ANTECIPADO:
+                    print(f"✅ DEBUG - CONDIÇÃO 2 ATIVADA: Aviso antecipado para '{nome}'")
+                    
+                    # Mapear nomes dos eventos para exibição mais amigável
+                    nomes_eventos = {
+                        "intervalo fund1 manha": "Intervalo Fund I - Manhã",
+                        "intervalo fund2 medio manha": "Intervalo Fund II e Médio - Manhã", 
+                        "intervalo fund1 tarde": "Intervalo Fund I - Tarde",
+                        "intervalo fund2 tarde": "Intervalo Fund II - Tarde"
+                    }
+                    
+                    nome_exibicao = nomes_eventos.get(nome, detalhes.get('descricao', nome.title()))
+                    minutos = int(tempo_para_inicio.total_seconds() // 60)
+                    
+                    return {
+                        "show_aviso": True,
+                        "mensagem_status": f"{nome_exibicao} em {minutos} minutos",
+                        "tempo_restante_segundos": tempo_para_inicio.total_seconds(),
+                        "tipo_evento": "aviso_inicio",
+                        "turno": detalhes.get('turno', 'geral')
+                    }
+                
+                # CONDIÇÃO 3: DURANTE o intervalo
+                if tempo_para_inicio <= timedelta(seconds=0) <= tempo_para_fim and detalhes['tipo'] == 'intervalo':
+                    print(f"✅ DEBUG - CONDIÇÃO 3 ATIVADA: Durante o intervalo '{nome}'")
+                    
+                    # Mapear nomes dos intervalos para exibição mais amigável
+                    nomes_intervalos = {
+                        "intervalo fund1 manha": "Intervalo Fund I - Manhã",
+                        "intervalo fund2 medio manha": "Intervalo Fund II e Médio - Manhã", 
+                        "intervalo fund1 tarde": "Intervalo Fund I - Tarde",
+                        "intervalo fund2 tarde": "Intervalo Fund II - Tarde"
+                    }
+                    
+                    nome_exibicao = nomes_intervalos.get(nome, detalhes.get('descricao', nome.title()))
+                    
+                    # Se faltam 5 minutos ou menos para terminar
+                    if tempo_para_fim <= AVISO_FIM:
+                        print(f"⚠️ DEBUG - Fim do intervalo em breve")
+                        return {
+                            "show_aviso": True,
+                            "mensagem_status": f"{nome_exibicao} termina em",
+                            "tempo_restante_segundos": tempo_para_fim.total_seconds(),
+                            "tipo_evento": "fim_intervalo",
+                            "turno": detalhes.get('turno', 'geral')
+                        }
+                    else:
+                        print(f"🔄 DEBUG - Intervalo em andamento")
+                        return {
+                            "show_aviso": True,
+                            "mensagem_status": f"{nome_exibicao} em andamento",
+                            "tempo_restante_segundos": tempo_para_fim.total_seconds(),
+                            "tipo_evento": "durante_intervalo",
+                            "turno": detalhes.get('turno', 'geral')
+                        }
+                
+                # CONDIÇÃO 4: Avisar saída (5 min antes)
+                if detalhes['tipo'] == 'saida' and timedelta(seconds=0) <= tempo_para_inicio <= AVISO_SAIDA:
+                    print(f"✅ DEBUG - CONDIÇÃO 4 ATIVADA: Aviso de saída '{nome}'")
+                    minutos = int(tempo_para_inicio.total_seconds() // 60)
+                    
+                    # Mapear nomes das saídas para exibição mais amigável
+                    nomes_saidas = {
+                        "saida educacao infantil": "Saída Educação Infantil",
+                        "saida fundamental1": "Saída Fundamental I",
+                        "saida fundamental2 medio": "Saída Fundamental II e Médio"
+                    }
+                    
+                    nome_exibicao = nomes_saidas.get(nome, detalhes.get('descricao', nome.title()))
+                    
+                    return {
+                        "show_aviso": True,
+                        "mensagem_status": f"{nome_exibicao} em {minutos} minutos",
+                        "tempo_restante_segundos": tempo_para_inicio.total_seconds(),
+                        "tipo_evento": "aviso_saida",
+                        "turno": detalhes.get('turno', 'geral')
+                    }
+                
+                print(f"❌ DEBUG - Nenhuma condição atendida para '{nome}'")
+                
+            except Exception as evento_erro:
+                print(f"⚠️ Erro ao processar evento '{nome}': {evento_erro}")
+                continue
+        
+        # Se chegou aqui, não há avisos ativos para mostrar
+        if agora_dt.weekday() >= 5:  # Final de semana
+            print(f"📅 DEBUG - Final de semana detectado")
             return {
-                "show_aviso": True,
-                "mensagem_status": f"Saída do turno {detalhes.get('turno', '')} em {minutos} minutos",
-                "tempo_restante_segundos": tempo_para_inicio.total_seconds(),
-                "tipo_evento": "aviso_saida",
-                "turno": detalhes.get('turno', 'geral')
+                "show_aviso": False,
+                "mensagem_status": "Bom final de semana!",
+                "tempo_restante_segundos": None,
+                "tipo_evento": "fim_de_semana",
+                "turno": None
             }
-        
-        print(f"❌ DEBUG - Nenhuma condição atendida para '{nome}'")
-    
-    # Se chegou aqui, não há avisos ativos para mostrar
-    if agora_dt.weekday() >= 5:  # Final de semana
-        print(f"📅 DEBUG - Final de semana detectado")
+        elif turno_atual is None:  # Fora do horário escolar
+            print(f"🏫 DEBUG - Fora do horário escolar")
+            return {
+                "show_aviso": False,
+                "mensagem_status": "Escola fechada - Próximo turno: 7h (manhã)",
+                "tempo_restante_segundos": None,
+                "tipo_evento": "fora_horario",
+                "turno": None
+            }
+        else:  # Horário normal de aula
+            print(f"📖 DEBUG - Aula normal em andamento")
+            return {
+                "show_aviso": False,
+                "mensagem_status": f"Aula em andamento - Turno da {turno_atual}",
+                "tempo_restante_segundos": None,
+                "tipo_evento": "aula_normal",
+                "turno": turno_atual
+            }
+            
+    except Exception as e:
+        print(f"⚠️ ERRO CRÍTICO em get_status_intervalo(): {e}")
         return {
             "show_aviso": False,
-            "mensagem_status": "Bom final de semana!",
+            "mensagem_status": "Erro no sistema de horários",
             "tempo_restante_segundos": None,
-            "tipo_evento": "fim_de_semana",
+            "tipo_evento": "erro_sistema",
             "turno": None
-        }
-    elif turno_atual is None:  # Fora do horário escolar
-        print(f"🏫 DEBUG - Fora do horário escolar")
-        return {
-            "show_aviso": False,
-            "mensagem_status": "Escola fechada - Próximo turno: 7h (manhã)",
-            "tempo_restante_segundos": None,
-            "tipo_evento": "fora_horario",
-            "turno": None
-        }
-    else:  # Horário normal de aula
-        print(f"📖 DEBUG - Aula normal em andamento")
-        return {
-            "show_aviso": False,
-            "mensagem_status": f"Aula em andamento - Turno da {turno_atual}",
-            "tempo_restante_segundos": None,
-            "tipo_evento": "aula_normal",
-            "turno": turno_atual
         }
 
 @login_manager.user_loader
@@ -308,24 +498,85 @@ class Usuario(db.Model, UserMixin):
 
 
 with app.app_context():
-    db.create_all()
-    if not Usuario.query.filter_by(email='admin@example.com').first():
-        admin_user = Usuario(nome='Admin', email='admin@example.com', senha='admin')
-        db.session.add(admin_user)
-        db.session.commit()
+    try:
+        print("🔧 Inicializando banco de dados...")
+        db.create_all()
+        print("✅ Tabelas criadas com sucesso")
         
-    if not Dispositivo.query.first():
-        novo_dispositivo = Dispositivo(ip="192.168.0.1", nome="Painel Teste", local="Entrada")
-        db.session.add(novo_dispositivo)
-        db.session.commit()
-    if not Noticia.query.first():
-        nova_noticia = Noticia(dispositivo_id=1, conteudo="Sejam bem-vindos!", status="ativa")
-        db.session.add(nova_noticia)
-        db.session.commit()
-    if not Evento.query.first():
-        novo_evento = Evento(dispositivo_id=1, titulo="Início das Aulas", descricao="O ano letivo começa hoje.", status="ativo")
-        db.session.add(novo_evento)
-        db.session.commit()
+        # Verificar e criar usuário administrador padrão
+        try:
+            if not Usuario.query.filter_by(email='admin@example.com').first():
+                admin_user = Usuario(nome='Admin', email='admin@example.com', senha='admin')
+                db.session.add(admin_user)
+                db.session.commit()
+                print("✅ Usuário administrador criado")
+            else:
+                print("ℹ️ Usuário administrador já existe")
+        except Exception as e:
+            db.session.rollback()
+            print(f"⚠️ Erro ao criar usuário administrador: {e}")
+            
+        # Verificar e criar dispositivo de teste
+        try:
+            if not Dispositivo.query.first():
+                novo_dispositivo = Dispositivo(
+                    ip="192.168.1.100", 
+                    nome="Painel Principal", 
+                    local="Entrada",
+                    status="ativo",
+                    observacoes="Dispositivo de teste criado automaticamente"
+                )
+                db.session.add(novo_dispositivo)
+                db.session.commit()
+                print("✅ Dispositivo de teste criado")
+            else:
+                print("ℹ️ Dispositivos já existem no banco")
+        except Exception as e:
+            db.session.rollback()
+            print(f"⚠️ Erro ao criar dispositivo de teste: {e}")
+            
+        # Verificar e criar notícia de exemplo
+        try:
+            if not Noticia.query.first():
+                nova_noticia = Noticia(
+                    dispositivo_id=1, 
+                    conteudo="Bem-vindos ao Sistema de Avisos Escolares!", 
+                    status="ativa"
+                )
+                db.session.add(nova_noticia)
+                db.session.commit()
+                print("✅ Notícia de exemplo criada")
+            else:
+                print("ℹ️ Notícias já existem no banco")
+        except Exception as e:
+            db.session.rollback()
+            print(f"⚠️ Erro ao criar notícia de exemplo: {e}")
+            
+        # Verificar e criar evento de exemplo
+        try:
+            if not Evento.query.first():
+                novo_evento = Evento(
+                    dispositivo_id=1, 
+                    titulo="Sistema Funcionando", 
+                    descricao="O sistema de avisos está operacional e monitorando os horários escolares.", 
+                    status="ativo",
+                    cor_fundo="#2563eb"
+                )
+                db.session.add(novo_evento)
+                db.session.commit()
+                print("✅ Evento de exemplo criado")
+            else:
+                print("ℹ️ Eventos já existem no banco")
+        except Exception as e:
+            db.session.rollback()
+            print(f"⚠️ Erro ao criar evento de exemplo: {e}")
+            
+        print("🎉 Inicialização do banco de dados concluída")
+        
+    except Exception as e:
+        print(f"❌ ERRO CRÍTICO na inicialização do banco: {e}")
+        print("   O sistema pode não funcionar corretamente!")
+        raise
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -433,43 +684,205 @@ def show_dispositivos():
     return render_template('dispositivos.html', dispositivos=dispositivos)
 
 
-# Função auxiliar para validar endereço IP
+# =====================================================
+# FUNÇÕES AUXILIARES COM PROGRAMAÇÃO DEFENSIVA
+# =====================================================
+
 def validar_ip(ip):
     """
-    Valida se o endereço IP está em formato correto.
+    Valida se o endereço IP está em formato correto e é seguro.
+    Implementa validações extras para evitar IPs perigosos.
     Retorna True se válido, False caso contrário.
     """
+    # Validação básica
     if not ip or not isinstance(ip, str):
+        print(f"⚠️ IP inválido: não é string ou está vazio")
+        return False
+    
+    # Sanitizar entrada
+    ip_limpo = ip.strip()
+    
+    # Verificar tamanho máximo
+    if len(ip_limpo) > 15:  # IPv4 máximo: 255.255.255.255 = 15 chars
+        print(f"⚠️ IP muito longo: {len(ip_limpo)} caracteres")
         return False
     
     try:
-        ipaddress.ip_address(ip.strip())
+        # Validar formato usando ipaddress
+        ip_obj = ipaddress.ip_address(ip_limpo)
+        
+        # Verificações de segurança adicionais
+        if ip_obj.is_loopback and ip_limpo != '127.0.0.1':
+            print(f"⚠️ IP loopback não permitido: {ip_limpo}")
+            return False
+            
+        if ip_obj.is_multicast:
+            print(f"⚠️ IP multicast não permitido: {ip_limpo}")
+            return False
+            
+        if ip_obj.is_reserved:
+            print(f"⚠️ IP reservado não permitido: {ip_limpo}")
+            return False
+        
+        # Verificar se está em faixas válidas para uso local
+        if not (ip_obj.is_private or ip_limpo == '127.0.0.1'):
+            print(f"⚠️ IP público não recomendado para dispositivos locais: {ip_limpo}")
+            # Não bloquear, apenas avisar
+        
+        print(f"✅ IP válido: {ip_limpo}")
         return True
-    except ValueError:
+        
+    except ValueError as e:
+        print(f"⚠️ Erro na validação do IP '{ip_limpo}': {e}")
+        return False
+    except Exception as e:
+        print(f"⚠️ Erro inesperado na validação do IP: {e}")
         return False
 
-# Função auxiliar para sanitizar entrada de texto
 def sanitizar_texto(texto, max_length=250):
     """
     Remove caracteres perigosos e limita o tamanho do texto.
+    Implementa validações robustas para evitar injeções.
     Retorna o texto sanitizado.
     """
     if not texto:
         return ""
     
-    # Remove caracteres de controle e limita o tamanho
-    texto_limpo = ''.join(char for char in str(texto) if ord(char) >= 32 or char in '\n\t')
-    return texto_limpo.strip()[:max_length]
+    try:
+        # Converter para string se não for
+        texto_str = str(texto)
+        
+        # Verificar tamanho antes do processamento
+        if len(texto_str) > max_length * 2:  # Permitir o dobro antes de cortar
+            print(f"⚠️ Texto muito longo ({len(texto_str)} chars), cortando...")
+            texto_str = texto_str[:max_length * 2]
+        
+        # Remove caracteres de controle perigosos, mantendo apenas espaços, tabs e quebras
+        caracteres_permitidos = []
+        for char in texto_str:
+            # Permitir caracteres imprimíveis + espaços + quebras de linha
+            if ord(char) >= 32 or char in '\n\t\r':
+                caracteres_permitidos.append(char)
+            else:
+                print(f"⚠️ Caractere de controle removido: ord({ord(char)})")
+        
+        texto_limpo = ''.join(caracteres_permitidos)
+        
+        # Remover tags HTML básicas por segurança
+        import re
+        texto_limpo = re.sub(r'<[^>]*>', '', texto_limpo)
+        
+        # Limitar tamanho final
+        resultado = texto_limpo.strip()[:max_length]
+        
+        if len(resultado) != len(texto.strip()):
+            print(f"📝 Texto sanitizado: {len(texto)} -> {len(resultado)} caracteres")
+        
+        return resultado
+        
+    except Exception as e:
+        print(f"⚠️ Erro ao sanitizar texto: {e}")
+        return ""  # Retorna string vazia em caso de erro
 
-# Função auxiliar para validar status
 def validar_status(status, valores_validos=['ativo', 'inativo', 'manutencao']):
     """
     Verifica se o status está entre os valores válidos.
+    Implementa validação defensiva com logging.
     Retorna o status se válido, 'ativo' como padrão caso contrário.
     """
-    if not status or status not in valores_validos:
+    try:
+        if not status:
+            print("📋 Status vazio, usando padrão 'ativo'")
+            return 'ativo'
+        
+        # Sanitizar entrada
+        status_limpo = str(status).lower().strip()
+        
+        # Verificar se está na lista de valores válidos
+        if status_limpo in valores_validos:
+            print(f"✅ Status válido: {status_limpo}")
+            return status_limpo
+        else:
+            print(f"⚠️ Status inválido '{status_limpo}', usando padrão 'ativo'")
+            print(f"   Valores válidos: {valores_validos}")
+            return 'ativo'
+            
+    except Exception as e:
+        print(f"⚠️ Erro na validação de status: {e}")
         return 'ativo'  # Valor padrão seguro
-    return status
+
+def validar_arquivo_upload(arquivo, tipos_permitidos=['jpg', 'jpeg', 'png', 'gif', 'mp4', 'avi']):
+    """
+    Valida arquivo de upload com verificações de segurança.
+    Retorna (valido: bool, erro: str, nome_seguro: str)
+    """
+    try:
+        if not arquivo:
+            return False, "Nenhum arquivo selecionado", ""
+        
+        if arquivo.filename == '':
+            return False, "Nome do arquivo está vazio", ""
+        
+        # Verificar extensão
+        if '.' not in arquivo.filename:
+            return False, "Arquivo sem extensão", ""
+        
+        extensao = arquivo.filename.rsplit('.', 1)[1].lower()
+        if extensao not in tipos_permitidos:
+            return False, f"Tipo de arquivo não permitido. Use: {', '.join(tipos_permitidos)}", ""
+        
+        # Gerar nome seguro
+        nome_seguro = secure_filename(arquivo.filename)
+        if not nome_seguro:
+            return False, "Nome do arquivo inválido", ""
+        
+        # Verificar tamanho (50MB máximo)
+        arquivo.seek(0, 2)  # Ir para o final
+        tamanho = arquivo.tell()
+        arquivo.seek(0)  # Voltar para o início
+        
+        limite_tamanho = 50 * 1024 * 1024  # 50MB
+        if tamanho > limite_tamanho:
+            return False, f"Arquivo muito grande ({tamanho // 1024 // 1024}MB). Máximo: 50MB", ""
+        
+        print(f"✅ Arquivo válido: {nome_seguro} ({tamanho // 1024}KB)")
+        return True, "", nome_seguro
+        
+    except Exception as e:
+        print(f"⚠️ Erro na validação do arquivo: {e}")
+        return False, "Erro interno na validação do arquivo", ""
+
+def validar_data_hora(data_str, formato='%Y-%m-%d %H:%M'):
+    """
+    Valida e converte string de data/hora.
+    Retorna (valido: bool, datetime_obj: datetime, erro: str)
+    """
+    try:
+        if not data_str:
+            return False, None, "Data não fornecida"
+        
+        # Sanitizar entrada
+        data_limpa = str(data_str).strip()
+        
+        # Tentar converter
+        data_obj = datetime.strptime(data_limpa, formato)
+        
+        # Verificar se a data não é muito antiga ou muito futura
+        agora = datetime.now()
+        if data_obj < agora - timedelta(days=365):
+            return False, None, "Data muito antiga (mais de 1 ano)"
+        
+        if data_obj > agora + timedelta(days=365):
+            return False, None, "Data muito futura (mais de 1 ano)"
+        
+        print(f"✅ Data válida: {data_obj}")
+        return True, data_obj, ""
+        
+    except ValueError as e:
+        return False, None, f"Formato de data inválido: {e}"
+    except Exception as e:
+        print(f"⚠️ Erro na validação da data: {e}")
+        return False, None, "Erro interno na validação da data"
 
 
 @app.route('/adicionar_dispositivo', methods=['GET', 'POST'])
@@ -1283,8 +1696,8 @@ def editar_evento_imagem(id):
                 flash("Formato de data de fim inválido.", "danger")
                 return redirect(url_for('editar_evento_imagem', id=id))
         
-        # Processamento de nova imagem (opcional)
-        arquivo_filename = evento.imagem  # Manter imagem atual por padrão
+        # Processamento de arquivo (imagem)
+        arquivo_filename = None
         
         if 'imagem' in request.files:
             file = request.files['imagem']
@@ -1502,33 +1915,171 @@ def editar_evento_video(id):
 @app.route('/debug_intervalo')
 @login_required
 def debug_intervalo():
-    """Rota para debugar o status do intervalo em tempo real"""
-    status = get_status_intervalo()
-    agora = datetime.now()
-    
-    return {
-        'horario_atual': agora.strftime('%H:%M:%S'),
-        'data_atual': agora.strftime('%d/%m/%Y'),
-        'dia_semana': agora.weekday(),
-        'turno_atual': get_turno_atual(agora.time()),
-        'status_intervalo': status,
-        'horarios_configurados': {
-            nome: {
-                'inicio': str(detalhes['inicio']),
-                'duracao_minutos': int(detalhes['duracao'].total_seconds() / 60),
-                'tipo': detalhes['tipo'],
-                'turno': detalhes.get('turno')
+    """
+    Rota para debugar o sistema de horários em tempo real.
+    Útil para verificar se os horários estão funcionando corretamente.
+    """
+    try:
+        status = get_status_intervalo()
+        agora = datetime.now()
+        
+        # Calcular próximos eventos
+        proximos_eventos = []
+        for nome, detalhes in HORARIOS_EVENTOS.items():
+            try:
+                inicio_hoje = datetime.combine(agora.date(), detalhes['inicio'])
+                tempo_para_evento = inicio_hoje - agora
+                
+                if tempo_para_evento.total_seconds() > 0 and tempo_para_evento.total_seconds() < 86400:  # Próximas 24h
+                    proximos_eventos.append({
+                        'nome': nome,
+                        'inicio': detalhes['inicio'].strftime('%H:%M'),
+                        'tipo': detalhes['tipo'],
+                        'turno': detalhes.get('turno', 'N/A'),
+                        'tempo_restante_minutos': int(tempo_para_evento.total_seconds() / 60),
+                        'descricao': detalhes.get('descricao', nome.title())
+                    })
+            except Exception as e:
+                print(f"Erro ao processar evento {nome}: {e}")
+        
+        # Ordenar por tempo restante
+        proximos_eventos.sort(key=lambda x: x['tempo_restante_minutos'])
+        
+        debug_info = {
+            'sistema': {
+                'horario_atual': agora.strftime('%H:%M:%S'),
+                'data_atual': agora.strftime('%d/%m/%Y'),
+                'dia_semana': agora.weekday(),
+                'turno_atual': get_turno_atual(agora.time()),
+                'total_horarios_configurados': len(HORARIOS_EVENTOS)
+            },
+            'status_intervalo': status,
+            'proximos_eventos': proximos_eventos[:5],  # Próximos 5 eventos
+            'horarios_configurados': {
+                nome: {
+                    'inicio': str(detalhes['inicio']),
+                    'fim': str((datetime.combine(agora.date(), detalhes['inicio']) + detalhes['duracao']).time()),
+                    'duracao_minutos': int(detalhes['duracao'].total_seconds() / 60),
+                    'tipo': detalhes['tipo'],
+                    'turno': detalhes.get('turno', 'N/A'),
+                    'descricao': detalhes.get('descricao', nome.title())
+                }
+                for nome, detalhes in HORARIOS_EVENTOS.items()
+            },
+            'configuracoes': {
+                'AVISO_ANTECIPADO_minutos': int(AVISO_ANTECIPADO.total_seconds() / 60),
+                'AVISO_FIM_minutos': int(AVISO_FIM.total_seconds() / 60),
+                'AVISO_ENTRADA_minutos': int(AVISO_ENTRADA.total_seconds() / 60),
+                'AVISO_SAIDA_minutos': int(AVISO_SAIDA.total_seconds() / 60)
             }
-            for nome, detalhes in HORARIOS_EVENTOS.items()
-        },
-        'constantes': {
-            'AVISO_ANTECIPADO_minutos': int(AVISO_ANTECIPADO.total_seconds() / 60),
-            'AVISO_FIM_minutos': int(AVISO_FIM.total_seconds() / 60),
-            'DURACAO_INTERVALO_minutos': int(DURACAO_INTERVALO.total_seconds() / 60)
         }
-    }
+        
+        return jsonify(debug_info)
+        
+    except Exception as e:
+        print(f"⚠️ Erro na rota de debug: {e}")
+        return jsonify({
+            'erro': 'Erro interno no sistema de debug',
+            'detalhes': str(e),
+            'horario_atual': datetime.now().strftime('%H:%M:%S')
+        }), 500
 
-if __name__ == '__main__':
-    with app.app_context():
-        fetch_and_cache_weather()
-    app.run(debug=True, use_reloader=False)
+@app.route('/testar_horarios')
+@login_required 
+def testar_horarios():
+    """
+    Rota para testar o sistema de horários com diferentes simulações.
+    Útil para verificar se os avisos funcionam corretamente.
+    """
+    try:
+        # Horários de teste para simular diferentes situações
+        horarios_teste = [
+            time(6, 50),   # 10 min antes da entrada
+            time(7, 0),    # Entrada geral
+            time(8, 5),    # 15 min antes do intervalo Fund I
+            time(8, 20),   # Durante intervalo Fund I
+            time(8, 50),   # 5 min antes do fim do intervalo Fund I
+            time(9, 15),   # 15 min antes do intervalo Fund II/Médio
+            time(9, 30),   # Durante intervalo Fund II/Médio
+            time(11, 10),  # 5 min antes da saída Ed. Infantil
+            time(11, 20),  # 5 min antes da saída Fund I
+            time(12, 10),  # 5 min antes da saída Fund II/Médio
+            time(13, 50),  # 10 min antes do contraturno
+            time(14, 25),  # 15 min antes do intervalo Fund I tarde
+            time(15, 15),  # 15 min antes do intervalo Fund II tarde
+        ]
+        
+        resultados = []
+        
+        for horario_teste in horarios_teste:
+            # Simular o horário atual
+            agora_original = datetime.now()
+            agora_simulado = datetime.combine(agora_original.date(), horario_teste)
+            
+            # Calcular turno para este horário
+            turno_simulado = get_turno_atual(horario_teste)
+            
+            # Simular os cálculos que seriam feitos em get_status_intervalo
+            eventos_do_turno = {
+                nome: detalhes for nome, detalhes in HORARIOS_EVENTOS.items()
+                if detalhes.get('turno') == turno_simulado or detalhes.get('turno') is None
+            }
+            
+            status_simulado = None
+            for nome, detalhes in eventos_do_turno.items():
+                inicio_dt = datetime.combine(agora_simulado.date(), detalhes['inicio'])
+                fim_dt = inicio_dt + detalhes['duracao']
+                
+                tempo_para_inicio = inicio_dt - agora_simulado
+                tempo_para_fim = fim_dt - agora_simulado
+                
+                # Verificar condições
+                if detalhes['tipo'] == 'entrada' and timedelta(seconds=0) <= tempo_para_inicio <= AVISO_ENTRADA:
+                    status_simulado = f"Aviso de entrada: {nome}"
+                    break
+                elif detalhes['tipo'] == 'intervalo' and timedelta(seconds=0) <= tempo_para_inicio <= AVISO_ANTECIPADO:
+                    status_simulado = f"Aviso de intervalo: {nome}"
+                    break
+                elif tempo_para_inicio <= timedelta(seconds=0) <= tempo_para_fim and detalhes['tipo'] == 'intervalo':
+                    if tempo_para_fim <= AVISO_FIM:
+                        status_simulado = f"Fim do intervalo: {nome}"
+                    else:
+                        status_simulado = f"Durante intervalo: {nome}"
+                    break
+                elif detalhes['tipo'] == 'saida' and timedelta(seconds=0) <= tempo_para_inicio <= AVISO_SAIDA:
+                    status_simulado = f"Aviso de saída: {nome}"
+                    break
+            
+            if not status_simulado:
+                if turno_simulado:
+                    status_simulado = f"Aula normal - turno {turno_simulado}"
+                else:
+                    status_simulado = "Fora do horário escolar"
+            
+            resultados.append({
+                'horario': horario_teste.strftime('%H:%M'),
+                'turno': turno_simulado,
+                'status': status_simulado
+            })
+        
+        return jsonify({
+            'titulo': 'Teste do Sistema de Horários',
+            'data_teste': datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+            'resultados': resultados,
+            'total_horarios_configurados': len(HORARIOS_EVENTOS),
+            'configuracoes': {
+                'aviso_antecipado': f"{int(AVISO_ANTECIPADO.total_seconds() / 60)} min",
+                'aviso_fim': f"{int(AVISO_FIM.total_seconds() / 60)} min",
+                'aviso_entrada': f"{int(AVISO_ENTRADA.total_seconds() / 60)} min",
+                'aviso_saida': f"{int(AVISO_SAIDA.total_seconds() / 60)} min"
+            }
+        })
+        
+    except Exception as e:
+        print(f"⚠️ Erro no teste de horários: {e}")
+        return jsonify({
+            'erro': 'Erro interno no teste de horários',
+            'detalhes': str(e)
+        }), 500
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)
