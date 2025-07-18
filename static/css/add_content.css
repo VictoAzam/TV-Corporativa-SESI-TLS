@@ -1,3 +1,4 @@
+/* --- Estilos Gerais --- */
 body {
     max-width: 1200px;
     margin: 0 auto;
@@ -7,36 +8,23 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: row;
+    gap: 0;
 }
 
-.header h1 {
+.header h1, h1, h2, h3 {
     color: #333;
     margin-bottom: 1rem;
     margin-top: 0.5rem;
 }
 
 .container {
-    background: white;
+    background: #fff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-bottom: 20px;
-    min-height: auto;
     max-width: 1100px;
-}
-
-@media (max-width: 480px) {
-    .container {
-        width: calc(100% - 16px);
-        margin: 8px;
-        padding: 16px;
-    }
-}
-
-h1, h2, h3 {
-    color: #333;
-    margin-bottom: 15px;
-    margin-top: 0;
 }
 
 label {
@@ -46,13 +34,7 @@ label {
     color: #555;
 }
 
-small {
-    margin-bottom: 15px;
-}
-
-input,
-textarea,
-select {
+input, textarea, select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
@@ -63,6 +45,20 @@ select {
     font-size: 1rem;
 }
 
+button, .botoes .btn-primary, .btn-dispositivos {
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+}
+
+button, .botoes .btn-primary {
+    background: #007bff;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    text-decoration: none;
+}
+
 .botoes {
     display: flex;
     justify-content: space-between;
@@ -71,113 +67,28 @@ select {
     gap: 10px;
 }
 
-.botoes .btn-primary {
-    background: #007bff;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background 0.2s;
-}
-
-.botoes .btn-primary:hover {
+.botoes .btn-primary:hover, .btn-dispositivos:hover {
     background: #0056b3;
+    color: #fff;
 }
 
-button {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.btn-excluir {
-    background-color: #dc3545;
+.btn-excluir, .logout {
+    background: #dc3545;
+    color: #fff;
     padding: 5px 10px;
     font-size: 12px;
 }
 
-.btn-excluir:hover {
-    background-color: #c82333;
-}
-
-.item-conteudo {
-    border: 1px solid #eee;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-}
-
-.tv-select {
-    margin-top: 1rem;
-    width: 100%;
-}
-
-.checkbox-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
-    background: #d2cccc;
-}
-
-.checkbox-group label {
-    display: flex;
-    align-items: center;
-    font-weight: normal;
-    color: #000;
-}
-
-.checkbox-group input[type="checkbox"] {
-    width: auto;
-    margin-right: 10px;
-    margin-bottom: 0;
-}
-
-.flash-messages {
-    padding: 15px;
-    margin: 15px 0;
-    border-radius: 4px;
-}
-
-.flash-messages.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.flash-messages.danger {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.preview-imagem {
-    max-width: 200px;
-    max-height: 150px;
-    margin-top: 10px;
-    border-radius: 4px;
+.btn-excluir:hover, .logout:hover {
+    background: #c82333;
 }
 
 .btn-dispositivos {
     margin-left: 10px;
     color: #007bff;
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 4px;
     border: 1px solid #007bff;
     background: #fff;
-    transition: background 0.2s, color 0.2s;
-}
-
-.btn-dispositivos:hover {
-    background: #007bff;
-    color: #fff;
+    padding: 8px 16px;
 }
 
 .btn-voltar {
@@ -190,17 +101,48 @@ button {
     text-decoration: underline;
 }
 
-.qrcode-link {
-    color: #007bff;
-    word-break: break-all;
+.flash-messages {
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+.flash-messages.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.flash-messages.danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 
-.qrcode-link:hover {
-    text-decoration: underline;
+.preview-imagem {
+    max-width: 200px;
+    max-height: 150px;
+    margin-top: 10px;
+    border-radius: 4px;
 }
 
-.form-inline {
-    display: inline;
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background: #d2cccc;
+}
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    color: #000;
+}
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    margin-bottom: 0;
 }
 
 .empty-state {
@@ -208,217 +150,84 @@ button {
     padding: 2rem;
     color: #666;
 }
-
 .empty-state p {
     margin-bottom: 1rem;
     font-size: 1.1rem;
 }
 
-.exemplo-toggle-container {
-    position: relative;
+.qrcode-link {
+    color: #007bff;
+    word-break: break-all;
+}
+.qrcode-link:hover {
+    text-decoration: underline;
 }
 
-.exemplo-card {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    width: 350px;
-    max-width: 90vw;
-    z-index: 1000;
-    display: none;
-}
+.form-inline { display: inline; }
 
-.exemplo-card.show {
-    display: block !important;
-}
-
-.exemplo-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
-    background: #f8f9fa;
-    border-radius: 8px 8px 0 0;
-}
-
-.exemplo-header h3 {
-    margin: 0;
-    color: #333;
-    font-size: 1.1rem;
-}
-
-.exemplo-close {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: #666;
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s;
-}
-
-.exemplo-close:hover {
-    background: #e9ecef;
-    color: #333;
-}
-
-.exemplo-content {
-    padding: 20px;
-}
-
-.exemplo-content ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.exemplo-content li {
-    margin-bottom: 10px;
-    line-height: 1.4;
-}
-
-.exemplo-content strong {
-    color: #28a745;
-}
-
-/* Responsividade para o card */
+/* --- Responsividade --- */
 @media (max-width: 768px) {
-    .exemplo-card {
-        width: 300px;
-        right: -50px;
+    .container, .form-actions, .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .form-actions .btn {
+        width: 100%;
+        min-width: unset;
+    }
+    .current-file .preview-imagem {
+        max-width: 100%;
+        height: auto;
+    }
+    #campo_imagem, #campo_video {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .upload-area {
+        width: 200px;
+        height: 200px;
+        margin: 10px auto;
+    }
+    .form-bts {
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 10px;
     }
 }
-
 @media (max-width: 480px) {
+    body, .container, .container-painel {
+        padding: 0.5rem 0.1rem !important;
+    }
+    .box, .painel, .card, .content, .main {
+        padding: 0.7rem 0.2rem !important;
+        min-height: 120px;
+        font-size: 0.95em;
+        max-width: 99vw;
+    }
+    h1, .box h1, #status-evento {
+        font-size: 1.1em !important;
+        word-break: break-word;
+    }
+    .tempo, #countdown-timer {
+        font-size: 1.1em !important;
+    }
+    .noticia-rapida, .footer, footer {
+        font-size: 0.9em !important;
+        padding: 0.2rem 0.5rem !important;
+        border-radius: 0.7rem;
+        height: 40px !important;
+    }
     .exemplo-card {
         width: 280px;
         right: -80px;
     }
-    
     .header {
         flex-direction: column;
         gap: 15px;
     }
 }
 
-form {
-    max-width: 1000px;
-}
-
-#campo_imagem, .campo_video {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 30px;
-    align-items: start;
-    width: 100%;
-    max-width: 1200px;
-}
-
-#campo_imagem input[type="text"], #campo_imagem input[type="url"],
-#campo_video input[type="text"], #campo_video input[type="url"] {
-    width: auto;
-}
-
-#campo_imagem textarea,
-#campo_video textarea {
-    width: auto;
-    height: 200px;
-    font-size: 1rem;
-    background: #d2cccc;
-}
-
-.campo_imagem_left {
-    display: flex;
-    flex-direction: column;
-}
-
-.campo_imagem_right {
-    display: flex;
-    flex-direction: column; 
-}
-
-.campo_imagem_left label,
-.campo_imagem_right label {
-    margin-bottom: 0;
-    margin-top: 15px;
-}
-
-.campo_imagem_left label:first-child,
-.campo_imagem_right label:first-child {
-    margin-top: 0;
-}
-
-/* Estilos para labels dentro do campo_video */
-#campo_video .campo_imagem_left label,
-#campo_video .campo_imagem_right label {
-    margin-bottom: 0;
-    margin-top: 15px;
-}
-
-#campo_video .campo_imagem_left label:first-child,
-#campo_video .campo_imagem_right label:first-child {
-    margin-top: 0;
-}
-
-#titulo_evento_label {
-    margin-bottom: 10px;
-}
-
-#preview-container {
-    margin: 10px 0;
-}
-
-#preview-container img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Responsividade - em mobile fica em coluna única */
-@media (max-width: 768px) {
-    #campo_imagem {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    #campo_video {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .campo_imagem_left,
-    .campo_imagem_right {
-        width: 100%;
-        height: 100%;
-    }
-    
-    .upload-area {
-        width: 200px;
-        height: 200px;
-        margin: 10px auto;
-    }
-
-    .form-bts {
-        flex-direction: column-reverse;
-        align-items: center;
-        gap: 10px;
-    }
-    .form-bts .btn {
-    }
-}
-
-/* Input customizado para upload de imagem */
+/* --- Upload e Preview --- */
 .upload-area {
     width: 100%;
     height: 285px;
@@ -434,36 +243,30 @@ form {
     margin: 10px 0;
     overflow: hidden;
 }
-
 .upload-area:hover {
     border-color: #007bff;
     background: #f0f8ff;
 }
-
 .upload-area.dragover {
     border-color: #28a745;
     background: #f0fff0;
 }
-
 .upload-area i {
     font-size: 3rem;
     color: #666;
     margin-bottom: 10px;
 }
-
 .upload-area span {
     color: #666;
     text-align: center;
     font-size: 0.9rem;
     line-height: 1.4;
 }
-
 .upload-area span small {
     font-size: 0.8rem;
     color: #999;
     font-style: italic;
 }
-
 .upload-area input[type="file"] {
     position: absolute;
     width: 100%;
@@ -471,14 +274,10 @@ form {
     opacity: 0;
     cursor: pointer;
 }
-
-/* Quando há preview, esconde o conteúdo de upload */
 .upload-area.has-image i,
 .upload-area.has-image span {
     display: none;
 }
-
-/* Preview da imagem aparece exatamente no lugar do input */
 .upload-area.has-image {
     padding: 0;
     background: transparent;
@@ -487,15 +286,11 @@ form {
     opacity: 1;
     transition: all 0.3s ease;
 }
-
-/* Quando hover na área reduzida, mostra que ainda é clicável */
 .upload-area.has-image:hover {
     opacity: 0.8;
     border-color: #007bff;
-    background: rgba(0, 123, 255, 0.05);
+    background: rgba(0,123,255,0.05);
 }
-
-/* Adiciona um texto pequeno quando há imagem */
 .upload-area.has-image::after {
     content: "Clique para alterar a mídia";
     display: flex;
@@ -507,7 +302,6 @@ form {
     color: #666;
     text-align: center;
 }
-
 #preview-container {
     position: absolute;
     width: 100%;
@@ -516,7 +310,6 @@ form {
     border-radius: 12px;
     overflow: hidden;
 }
-
 #preview-container img {
     width: 100%;
     height: 100%;
@@ -525,45 +318,7 @@ form {
     display: block;
 }
 
-/* Grupo de cor de fundo */
-.cor-fundo-group {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.cor-fundo-group input[type="color"] {
-    width: 60px;
-    height: 40px;
-    padding: 2px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.cor-fundo-group small {
-    display: block;
-    margin-top: 5px;
-    color: #666;
-    font-size: 0.9em;
-}
-
-.labeldiv {
-    width: 100%;
-    align-items: start;
-}
-
-#campo_noticia {
-    width: 100%;
-}
-
-#campo_noticia textarea {
-    height: 50px;
-}
-
+/* --- Formulários e Grupos --- */
 .form-bts {
     width: 100%;
     display: flex;
@@ -572,7 +327,6 @@ form {
     gap: 1rem;
     flex-wrap: wrap;
 }
-
 .form-bts .btn {
     padding: 10px 20px;
     font-size: 14px;
@@ -585,23 +339,110 @@ form {
     align-items: center;
     gap: 0.5rem;
 }
-
 .form-bts .btn i {
     font-size: 16px;
 }
 
-/* Estilos para páginas de edição */
-
-.current-file {
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: start;
+}
+.form-group {
+    flex: 1;
+}
+.form-group .upload-area {
     width: 100%;
+    height: 250px;
+    border: 2px solid #ccc;
+}
+.form-group .upload-area:hover {
+    border-color: #007bff;
+    background: #f8f9ff;
+}
+.form-group .upload-area.has-image {
+    height: 50px;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    margin-top: 10px;
+    background: #f9f9f9;
+}
+.form-group .upload-area.has-image::after {
+    content: "Clique para trocar imagem";
+    font-size: 0.75rem;
+    color: #777;
+}
+.form-group .upload-area.has-image:hover {
+    border-color: #007bff;
+    background: rgba(0,123,255,0.03);
+}
+.form-group .current-file {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.form-group .current-file .preview-imagem {
+    border-radius: 8px;
+    max-height: 350px;
+    object-fit: cover;
 }
 
+/* --- Cores e Grupos --- */
+.cor-fundo-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.cor-fundo-group input[type="color"] {
+    width: 60px;
+    height: 40px;
+    padding: 2px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.cor-fundo-group small {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 0.9em;
+}
+.form-row .cor-fundo-group {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 0;
+}
+.form-row .cor-fundo-group label {
+    margin-bottom: 5px;
+}
+.form-row .cor-fundo-group input[type="color"] {
+    width: 80px;
+    height: 50px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+.form-row .cor-fundo-group input[type="color"]:hover {
+    border-color: #007bff;
+}
+
+/* --- Outros ajustes e utilidades --- */
+.labeldiv { width: 100%; align-items: start; }
+#campo_noticia { width: 100%; }
+#campo_noticia textarea { height: 50px; }
+
+.current-file { width: 100%; }
 .current-file strong {
     display: block;
     margin-bottom: 0.5rem;
     color: #495057;
 }
-
 .current-file .preview-imagem {
     max-width: 100%;
     width: 100%;
@@ -609,15 +450,9 @@ form {
     height: 100%;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: opacity 0.3s ease-in-out; /* Transição suave para substituição */
+    transition: opacity 0.3s ease-in-out;
 }
-
-/* Efeito quando nova imagem está carregando */
-.current-file .preview-imagem.loading {
-    opacity: 0.7;
-}
-
-/* Destaque quando imagem foi alterada */
+.current-file .preview-imagem.loading { opacity: 0.7; }
 .current-file.image-changed {
     border: 2px solid #28a745;
     padding: 2px;
@@ -625,17 +460,13 @@ form {
     animation: highlight 2s ease-in-out;
 }
 
-
 .video-info {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     color: #6c757d;
 }
-
-.video-info i {
-    font-size: 1.2rem;
-}
+.video-info i { font-size: 1.2rem; }
 
 .form-actions {
     display: flex;
@@ -645,173 +476,80 @@ form {
     padding-top: 1.5rem;
     border-top: 1px solid #dee2e6;
 }
+.form-actions .btn { min-width: 140px; }
 
-.form-actions .btn {
-    min-width: 140px;
+.edit_video { display: block; gap: 10px; }
+
+#descricao_evento_imagem_label { margin-top: 10px; margin-bottom: 0; }
+#titulo_evento_label { margin-bottom: 10px; }
+#preview-container { margin: 10px 0; }
+#preview-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* Responsividade para páginas de edição */
-@media (max-width: 768px) {
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .form-actions .btn {
-        width: 100%;
-        min-width: unset;
-    }
-    
-    .current-file .preview-imagem {
-        max-width: 100%;
-        height: auto;
-    }
+.exemplo-toggle-container { position: relative; }
+.exemplo-card {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 350px;
+    max-width: 90vw;
+    z-index: 1000;
+    display: none;
 }
-
-#descricao_evento_imagem_label {
-    margin-top: 10px;
-    margin-bottom: 0;
-}
-
-.edit_video {
-    display: block;
-    gap: 10px;
-}
-
-/* Estilos específicos para páginas de edição */
-.form-row {
+.exemplo-card.show { display: block !important; }
+.exemplo-header {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: start;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
 }
-
-.form-group {
-    flex: 1;
+.exemplo-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1rem;
 }
-
-/* Ajustes para upload area em páginas de edição */
-.form-group .upload-area {
-    width: 100%;
-    height: 250px; /* Menor que a padrão */
-    border: 2px solid #ccc;
-}
-
-.form-group .upload-area:hover {
-    border-color: #007bff;
-    background: #f8f9ff;
-}
-
-/* Quando há imagem na página de edição, reduz ainda mais */
-.form-group .upload-area.has-image {
-    height: 50px;
-    border: 1px solid #bbb;
-    border-radius: 8px;
-    margin-top: 10px;
-    background: #f9f9f9;
-}
-
-.form-group .upload-area.has-image::after {
-    content: "Clique para trocar imagem";
-    font-size: 0.75rem;
-    color: #777;
-}
-
-.form-group .upload-area.has-image:hover {
-    border-color: #007bff;
-    background: rgba(0, 123, 255, 0.03);
-}
-
-/* Ajuste para o container da imagem atual */
-.form-group .current-file {
-    margin-bottom: 10px;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.form-group .current-file .preview-imagem {
-    border-radius: 8px;
-    max-height: 350px;
-    object-fit: cover;
-}
-
-/* Responsividade para form-row */
-@media (max-width: 768px) {
-    .form-row {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .form-group .upload-area {
-        height: 200px;
-    }
-    
-    .form-group .upload-area.has-image {
-        height: 45px;
-    }
-}
-
-/* Ajustes específicos para o grupo cor de fundo dentro do form-row */
-.form-row .cor-fundo-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    margin-top: 0;
-}
-
-.form-row .cor-fundo-group label {
-    margin-bottom: 5px;
-}
-
-.form-row .cor-fundo-group input[type="color"] {
-    width: 80px;
-    height: 50px;
-    border-radius: 8px;
-    border: 2px solid #ddd;
+.exemplo-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
     cursor: pointer;
-    transition: border-color 0.2s ease;
+    color: #666;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
 }
-
-.form-row .cor-fundo-group input[type="color"]:hover {
-    border-color: #007bff;
+.exemplo-close:hover {
+    background: #e9ecef;
+    color: #333;
 }
-
-/* Seção de agendamento (páginas de edição) - mantém estilização original */
-.agendamento-section {
-    margin: 20px 0;
-    /* Remove background e bordas para manter estilização original dos inputs */
+.exemplo-content {
+    padding: 20px;
 }
-
-.logout {
-    background: #dc3545;
+.exemplo-content ul {
+    margin: 0;
+    padding-left: 20px;
 }
-
-.logout:hover {
-    background: #c82333;
+.exemplo-content li {
+    margin-bottom: 10px;
+    line-height: 1.4;
 }
-
-/* --- Melhorias de responsividade para telas pequenas --- */
-@media (max-width: 480px) {
-  body, .container, .container-painel {
-    padding: 0.5rem 0.1rem !important;
-  }
-  .box, .painel, .card, .content, .main {
-    padding: 0.7rem 0.2rem !important;
-    min-height: 120px;
-    font-size: 0.95em;
-    max-width: 99vw;
-  }
-  h1, .box h1, #status-evento {
-    font-size: 1.1em !important;
-    word-break: break-word;
-  }
-  .tempo, #countdown-timer {
-    font-size: 1.1em !important;
-  }
-  .noticia-rapida, .footer, footer {
-    font-size: 0.9em !important;
-    padding: 0.2rem 0.5rem !important;
-    border-radius: 0.7rem;
-    height: 40px !important;
-  }
+.exemplo-content strong { color: #28a745; }
+@media (max-width: 768px) {
+    .exemplo-card { width: 300px; right: -50px; }
 }
