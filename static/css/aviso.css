@@ -167,60 +167,148 @@ footer {
 }
 
 @media (max-width: 600px) {
-  .container {
-    padding: 1rem 0.2rem;
-  }
-  .box h1 {
-    font-size: 1.5em;
-  }
+/* Responsividade Melhorada */
+@media (max-width: 1024px) {
   .relogio {
-    width: 150px;
-    height: 60px;
-    font-size: 0.8em;
+    width: 380px;
+    padding: 0.9rem;
   }
-  #hora {
-    font-size: 1.2rem;
+  
+  .box {
+    margin: 10px;
+    padding: 1.5rem;
   }
+  
   .noticia-rapida {
-    font-size: 1.2rem;
-    padding: 0.3rem 1rem;
-  }
-  footer {
-    height: 60px;
+    padding: 0.4rem 1rem;
+    font-size: 1.1rem;
   }
 }
 
-/* --- Melhorias de responsividade para telas pequenas --- */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .relogio {
+    position: relative;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto 20px;
+    padding: 0.8rem;
+  }
+  
+  .box {
+    margin: 8px;
+    padding: 1.2rem;
+    border-radius: 20px;
+  }
+  
+  .box h1 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  
+  #hora {
+    font-size: 1.3rem;
+  }
+  
+  .noticia-rapida {
+    font-size: 1.1rem;
+    padding: 0.4rem 0.8rem;
+    line-height: 1.4;
+  }
+  
+  footer {
+    height: 80px;
+    padding: 0.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .container-painel {
-    padding: 0.5rem 0.1rem;
+    padding: 0.3rem;
   }
+  
   .relogio {
+    position: relative;
+    top: 5px;
+    left: 0;
     width: 100%;
-    min-width: unset;
-    font-size: 0.7em;
-    padding: 0.5rem 0.2rem;
+    max-width: 100%;
+    margin: 0 auto 15px;
+    padding: 0.75rem;
+    border-radius: 15px;
+    font-size: 0.9em;
   }
+  
   .box {
-    padding: 0.7rem 0.2rem;
-    min-height: 120px;
+    margin: 5px;
+    padding: 1rem;
+    min-height: 150px;
+    border-radius: 15px;
+    max-width: 100%;
     font-size: 0.95em;
-    max-width: 99vw;
   }
+  
   .box h1, #status-evento {
-    font-size: 1.1em;
+    font-size: 1.2rem;
     word-break: break-word;
+    line-height: 1.3;
   }
+  
   .tempo, #countdown-timer {
-    font-size: 1.1em;
+    font-size: 1.4rem;
+    margin: 0.8rem 0;
   }
+  
   .noticia-rapida {
-    font-size: 0.9em;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.7rem;
+    font-size: 0.95rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 12px;
+    line-height: 1.5;
+    margin: 5px 0;
   }
+  
   footer {
-    height: 40px;
-    font-size: 0.9em;
+    height: 60px;
+    font-size: 0.9rem;
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Otimizações específicas para telas muito pequenas */
+  @media (max-width: 360px) {
+    .relogio {
+      padding: 0.5rem;
+      font-size: 0.8em;
+    }
+    
+    .box {
+      padding: 0.8rem;
+      margin: 3px;
+    }
+    
+    .box h1 {
+      font-size: 1.1rem;
+    }
+    
+    #countdown-timer {
+      font-size: 1.2rem;
+    }
+    
+    .noticia-rapida {
+      font-size: 0.9rem;
+      padding: 0.3rem 0.5rem;
+    }
+    
+    footer {
+      height: 50px;
+      font-size: 0.85rem;
+    }
   }
 }

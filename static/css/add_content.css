@@ -165,58 +165,175 @@ button, .botoes .btn-primary {
 
 .form-inline { display: inline; }
 
-/* --- Responsividade --- */
+/* --- Responsividade Melhorada --- */
+@media (max-width: 1024px) {
+    .container {
+        max-width: 95%;
+        padding: 15px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-group {
+        width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+        margin: 0;
+    }
+    
     .container, .form-actions, .form-row {
         flex-direction: column;
         gap: 15px;
+        padding: 15px;
     }
-    .form-actions .btn {
+    
+    .header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .form-actions .btn, .botoes .btn-primary, .btn-dispositivos {
         width: 100%;
         min-width: unset;
+        margin: 5px 0;
+        padding: 12px;
+        font-size: 1rem;
     }
+    
+    .botoes {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
     .current-file .preview-imagem {
         max-width: 100%;
         height: auto;
     }
+    
     #campo_imagem, #campo_video {
         grid-template-columns: 1fr;
         gap: 20px;
     }
+    
     .upload-area {
-        width: 200px;
+        width: 100%;
+        max-width: 250px;
         height: 200px;
         margin: 10px auto;
     }
+    
     .form-bts {
         flex-direction: column-reverse;
         align-items: center;
         gap: 10px;
     }
-}
-@media (max-width: 480px) {
-    body, .container, .container-painel {
-        padding: 0.5rem 0.1rem !important;
+    
+    input, textarea, select {
+        padding: 12px;
+        font-size: 16px; /* Evita zoom no iOS */
     }
+    
+    .form-group label {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        padding: 10px;
+        margin: 5px auto;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .header h1 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+    
     .box, .painel, .card, .content, .main {
         padding: 0.7rem 0.2rem !important;
         min-height: 120px;
         font-size: 0.95em;
         max-width: 99vw;
     }
+    
     h1, .box h1, #status-evento {
         font-size: 1.1em !important;
         word-break: break-word;
     }
+    
     .tempo, #countdown-timer {
         font-size: 1.1em !important;
     }
+    
     .noticia-rapida, .footer, footer {
         font-size: 0.9em !important;
         padding: 0.2rem 0.5rem !important;
         border-radius: 0.7rem;
         height: 40px !important;
     }
+    
+    .upload-area {
+        width: 100%;
+        max-width: 200px;
+        height: 150px;
+        font-size: 0.9rem;
+    }
+    
+    .form-actions .btn, .botoes .btn-primary {
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        min-height: 48px; /* Melhor usabilidade touch */
+    }
+    
+    input, textarea, select {
+        padding: 15px;
+        font-size: 16px;
+        border-radius: 6px;
+    }
+    
+    textarea {
+        min-height: 100px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    /* Melhorias para formulários em mobile */
+    .checkbox-group, .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .checkbox-item, .radio-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 5px;
+    }
+}
     .exemplo-card {
         width: 280px;
         right: -80px;

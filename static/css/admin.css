@@ -126,18 +126,57 @@ a.btn-secondary:hover {
     background-color: #7b7b7b;
 }
 
-/* Responsividade */
-@media (max-width: 600px) {
+/* Responsividade Melhorada */
+@media (max-width: 1024px) {
+    .container {
+        max-width: 90%;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
     body {
         padding: 1rem;
     }
 
     .container {
+        max-width: 95%;
         padding: 1.5rem;
     }
 
+    h1 {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    p.text-muted {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    form {
+        gap: 1.25rem;
+    }
+
     textarea {
-        font-size: 1rem;
+        padding: 12px;
+        font-size: 16px; /* Evita zoom no iOS */
+        min-height: 120px;
+    }
+
+    .form-check {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-check-input {
+        transform: scale(1.4);
+        margin-right: 0.75rem;
+    }
+
+    .form-check-label {
+        font-size: 1.05rem;
+        line-height: 1.4;
     }
 
     button,
@@ -145,36 +184,99 @@ a.btn-secondary:hover {
         width: 100%;
         margin: 0.5rem 0 0;
         text-align: center;
+        padding: 15px;
+        font-size: 1.1rem;
     }
 
     .mt-4 {
         display: flex;
         flex-direction: column;
+        gap: 10px;
     }
 }
 
-/* --- Melhorias de responsividade para telas pequenas --- */
 @media (max-width: 480px) {
-  body, .container, .container-painel {
-    padding: 0.5rem 0.1rem !important;
-  }
-  .box, .painel, .card, .content, .main {
-    padding: 0.7rem 0.2rem !important;
-    min-height: 120px;
-    font-size: 0.95em;
-    max-width: 99vw;
-  }
-  h1, .box h1, #status-evento {
-    font-size: 1.1em !important;
-    word-break: break-word;
-  }
-  .tempo, #countdown-timer {
-    font-size: 1.1em !important;
-  }
-  .noticia-rapida, .footer, footer {
-    font-size: 0.9em !important;
-    padding: 0.2rem 0.5rem !important;
-    border-radius: 0.7rem;
-    height: 40px !important;
-  }
+    body {
+        padding: 0.5rem;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 1rem;
+        margin: 0;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    h1 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    p.text-muted {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    form {
+        gap: 1rem;
+    }
+
+    label {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    textarea {
+        padding: 15px;
+        font-size: 16px;
+        min-height: 100px;
+        border-radius: 6px;
+    }
+
+    .form-check {
+        margin-bottom: 1rem;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .form-check-input {
+        transform: scale(1.5);
+        margin-right: 1rem;
+    }
+
+    .form-check-label {
+        font-size: 1rem;
+        line-height: 1.5;
+        padding-left: 0.5rem;
+    }
+
+    button,
+    a.btn {
+        min-height: 48px;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        border-radius: 6px;
+        margin: 8px 0;
+    }
+
+    /* Melhor feedback visual para focus */
+    textarea:focus {
+        border-color: var(--cor-secundaria);
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.25);
+        outline: none;
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.25);
+        outline: none;
+    }
+
+    /* Otimização de texto para mobile */
+    .text-danger {
+        font-size: 0.95rem;
+        display: block;
+        margin-top: 5px;
+    }
 }

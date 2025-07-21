@@ -37,6 +37,15 @@
             </div>
         </div>
     </main>
+
+    <!-- Timer Minimizado do Intervalo -->
+    <div id="mini-timer" class="mini-timer hidden">
+        <div class="mini-timer-content">
+            <span id="mini-timer-text">Intervalo: --:--</span>
+            <button id="mini-timer-close">&times;</button>
+        </div>
+    </div>
+
     <footer>
         <div class="noticia-rapida">
             {% for n in noticia %}
@@ -49,5 +58,76 @@
            
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ===== SISTEMA DE TIMER MINIMIZADO =====
+            const miniTimer = document.getElementById('mini-timer');
+            const miniTimerText = document.getElementById('mini-timer-text');
+            const miniTimerClose = document.getElementById('mini-timer-close');
+
+            // Função para verificar se há um timer ativo no localStorage
+            function checkAndShowMiniTimer() {
+                const timerData = localStorage.getItem('intervaloTimer');
+                if (timerData) {
+                    try {
+                        const data = JSON.parse(timerData);
+                        const now = new Date().getTime();
+                        const endTime = new Date(data.endTime).getTime();
+                        
+                        if (endTime > now) {
+                            // Timer ainda ativo, mostrar mini timer
+                            showMiniTimer(data);
+                            startMiniTimerCountdown(endTime);
+                        } else {
+                            // Timer expirado, remover
+                            localStorage.removeItem('intervaloTimer');
+                        }
+                    } catch (e) {
+                        console.error('Erro ao parse do timer data:', e);
+                        localStorage.removeItem('intervaloTimer');
+                    }
+                }
+            }
+
+            // Função para mostrar o mini timer
+            function showMiniTimer(data) {
+                miniTimer.classList.remove('hidden');
+                miniTimerText.textContent = `${data.status}: --:--`;
+            }
+
+            // Função para iniciar countdown do mini timer
+            function startMiniTimerCountdown(endTime) {
+                const interval = setInterval(() => {
+                    const now = new Date().getTime();
+                    const timeLeft = endTime - now;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(interval);
+                        miniTimer.classList.add('hidden');
+                        localStorage.removeItem('intervaloTimer');
+                        return;
+                    }
+                    
+                    const minutes = Math.floor(timeLeft / 60000);
+                    const seconds = Math.floor((timeLeft % 60000) / 1000);
+                    const timerData = JSON.parse(localStorage.getItem('intervaloTimer'));
+                    
+                    miniTimerText.textContent = `${timerData.status}: ${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+                }, 1000);
+            }
+
+            // Botão para fechar o mini timer
+            if (miniTimerClose) {
+                miniTimerClose.addEventListener('click', function() {
+                    miniTimer.classList.add('hidden');
+                    localStorage.removeItem('intervaloTimer');
+                });
+            }
+
+            // Verificar timer ao carregar a página
+            checkAndShowMiniTimer();
+        });
+    </script>
 </body>
 </html>

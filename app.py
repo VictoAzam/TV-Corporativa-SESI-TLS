@@ -1,6 +1,7 @@
 import json
 import os
 import platform
+import re
 import requests
 import subprocess
 import uuid
@@ -12,13 +13,6 @@ from flask_sqlalchemy import SQLAlchemy
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import or_, and_
 from werkzeug.utils import secure_filename
-import os
-import json
-import requests
-import ipaddress
-import subprocess
-import platform
-import uuid
 
 # Carregar variáveis de ambiente do arquivo .env
 try:
@@ -33,9 +27,15 @@ app = Flask(__name__)
 # Configurações com valores padrão para fallback
 app.secret_key = os.getenv('SECRET_KEY', 'S3nh@IFMS')
 
-api_key = os.getenv('API_KEY', '4cd224af1c46c58cf99cdbd798e13931')
+api_key = os.getenv('API_KEY', '0326938873afe9a65f6c965706c4ada4')
 city = os.getenv('CITY', 'Três Lagoas, br')
 CACHE_FILE = os.getenv('CACHE_FILE', 'clima.json')
+
+# Debug das configurações de clima
+print("🌤️  Configurações de clima:")
+print(f"   🔑 API Key: {api_key[:10]}..." if api_key else "   ❌ API Key não configurada")
+print(f"   🏙️  Cidade: {city}")
+print(f"   📁 Arquivo cache: {CACHE_FILE}")
 
 # Configuração do banco de dados
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///dispositivos.db')
@@ -422,16 +422,50 @@ def fetch_and_cache_weather():
     Busca a previsão do tempo na API e salva em um arquivo local para evitar consultas repetidas.
     Se houver algum erro de rede, mostra uma mensagem no terminal.
     """
+    print(f"🌤️  Iniciando busca de dados do clima...")
+    print(f"🌍 Cidade: {city}")
+    print(f"📁 Arquivo cache: {CACHE_FILE}")
+    
     url = f'https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units=metric&lang=pt_br'
+    
     try:
-        response = requests.get(url, verify=False)
+        print(f"🔄 Fazendo requisição para: {url[:50]}...")
+        response = requests.get(url, verify=False, timeout=30)
         response.raise_for_status()
+        
+        print(f"✅ Resposta recebida: {response.status_code}")
         dados_previsao = response.json()
+        
+        # Verificar se os dados são válidos
+        if 'list' not in dados_previsao or not dados_previsao['list']:
+            print(f"⚠️ Dados de previsão inválidos ou vazios")
+            return
+        
+        # Salvar no arquivo
         with open(CACHE_FILE, 'w', encoding='utf-8') as f:
             json.dump(dados_previsao, f, ensure_ascii=False, indent=4)
+        
+        print(f"✅ Dados do clima salvos em: {CACHE_FILE}")
+        print(f"📊 Previsões disponíveis: {len(dados_previsao['list'])}")
+        
+    except requests.exceptions.Timeout:
+        print(f"⏰ Timeout ao buscar dados do clima (30s)")
+    except requests.exceptions.ConnectionError:
+        print(f"🌐 Erro de conexão ao buscar dados do clima")
+    except requests.exceptions.HTTPError as e:
+        print(f"🚫 Erro HTTP ao buscar dados do clima: {e}")
+        if response.status_code == 401:
+            print(f"🔑 Verificar se a API_KEY está correta: {api_key[:10]}...")
     except requests.exceptions.RequestException as e:
-        print(f"Erro ao buscar dados do clima: {e}")
-        # Adicionar log se necessário
+        print(f"❌ Erro de requisição ao buscar dados do clima: {e}")
+    except json.JSONDecodeError as e:
+        print(f"📄 Erro ao decodificar JSON da API do clima: {e}")
+    except IOError as e:
+        print(f"💾 Erro ao salvar arquivo de clima: {e}")
+    except Exception as e:
+        print(f"⚠️ Erro inesperado ao buscar dados do clima: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 class Dispositivo(db.Model):
@@ -769,7 +803,6 @@ def sanitizar_texto(texto, max_length=250):
         texto_limpo = ''.join(caracteres_permitidos)
         
         # Remover tags HTML básicas por segurança
-        import re
         texto_limpo = re.sub(r'<[^>]*>', '', texto_limpo)
         
         # Limitar tamanho final
@@ -1172,10 +1205,23 @@ horarios_agendados = [
     (17, 0), (18, 0), (19, 0), (21, 0), (22, 0), (22, 50)
 ]
 
+print("🕐 Configurando scheduler para busca de dados do clima...")
 scheduler = BackgroundScheduler(daemon=True)
+
+# Adicionar jobs agendados
 for hora, minuto in horarios_agendados:
     scheduler.add_job(fetch_and_cache_weather, 'cron', hour=hora, minute=minuto)
+    print(f"   ⏰ Agendado para {hora:02d}:{minuto:02d}")
+
+# Tentar buscar dados imediatamente na inicialização
+print("🚀 Executando busca inicial dos dados do clima...")
+try:
+    fetch_and_cache_weather()
+except Exception as e:
+    print(f"⚠️ Erro na busca inicial do clima: {e}")
+
 scheduler.start()
+print("✅ Scheduler iniciado com sucesso!")
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -1515,21 +1561,39 @@ def excluir_mensagem(id):
 
 @app.route('/clima')
 def clima():
+    print(f"🌤️  Acessando rota /clima...")
+    print(f"📁 Verificando arquivo: {CACHE_FILE}")
+    print(f"📂 Caminho absoluto: {os.path.abspath(CACHE_FILE)}")
+    
     status_intervalo = get_status_intervalo()
     clima_data = None
     erro_msg = None
-    noticia = Noticia.query.all()
-    evento = Evento.query.all()
-    noticia = Noticia.query.all()
-    evento = Evento.query.all()
+    noticia = Noticia.query.filter_by(status='ativa').all()
+    evento = Evento.query.filter_by(status='ativo').all()
 
     if not os.path.exists(CACHE_FILE):
-        erro_msg = "Dados do clima ainda não disponíveis. Aguardando a primeira busca."
-    else:
+        print(f"❌ Arquivo {CACHE_FILE} não existe")
+        # Tentar buscar dados agora
+        print(f"🔄 Tentando buscar dados do clima agora...")
         try:
+            fetch_and_cache_weather()
+            # Verificar novamente se o arquivo foi criado
+            if os.path.exists(CACHE_FILE):
+                print(f"✅ Arquivo criado com sucesso!")
+            else:
+                print(f"❌ Arquivo ainda não foi criado")
+                erro_msg = "Erro ao buscar dados do clima. Verifique sua conexão e API key."
+        except Exception as e:
+            print(f"⚠️ Erro ao buscar clima: {e}")
+            erro_msg = f"Erro ao buscar dados do clima: {str(e)}"
+    
+    if os.path.exists(CACHE_FILE) and not erro_msg:
+        try:
+            print(f"📖 Lendo arquivo de clima...")
             with open(CACHE_FILE, 'r', encoding='utf-8') as f:
                 dados_previsao = json.load(f)
 
+            print(f"✅ Dados carregados com sucesso")
             primeira_previsao = dados_previsao['list'][0]
             clima_data = {
                 'cidade': dados_previsao['city']['name'],
@@ -1539,8 +1603,12 @@ def clima():
                 'vento': round(primeira_previsao['wind']['speed'] * 3.6, 1),
                 'icone': primeira_previsao['weather'][0]['icon'],
             }
+            print(f"🌡️  Temperatura: {clima_data['temperatura']}°C")
+            print(f"🏙️  Cidade: {clima_data['cidade']}")
+            
         except (IOError, json.JSONDecodeError, KeyError) as e:
-            erro_msg = "Ocorreu um erro ao carregar os dados do clima."
+            print(f"❌ Erro ao processar dados do clima: {e}")
+            erro_msg = f"Erro ao carregar os dados do clima: {str(e)}"
             
     return render_template(
         'clima.html',
@@ -1564,6 +1632,38 @@ def configurar_dispositivo_exemplo():
     else:
         flash('Dispositivo de exemplo não encontrado.', 'info')
         return redirect(url_for('listar_dispositivos'))
+
+@app.route('/testar_clima')
+@login_required
+def testar_clima():
+    """Rota para testar manualmente a busca de dados do clima"""
+    try:
+        print("🧪 Teste manual da função de clima...")
+        fetch_and_cache_weather()
+        
+        if os.path.exists(CACHE_FILE):
+            with open(CACHE_FILE, 'r', encoding='utf-8') as f:
+                dados = json.load(f)
+            
+            return jsonify({
+                'status': 'sucesso',
+                'arquivo_existe': True,
+                'cidade': dados.get('city', {}).get('name', 'N/A'),
+                'previsoes': len(dados.get('list', [])),
+                'primeira_temp': dados['list'][0]['main']['temp'] if dados.get('list') else 'N/A'
+            })
+        else:
+            return jsonify({
+                'status': 'erro',
+                'arquivo_existe': False,
+                'mensagem': 'Arquivo não foi criado'
+            })
+            
+    except Exception as e:
+        return jsonify({
+            'status': 'erro',
+            'erro': str(e)
+        })
 
 # Rotas para edição de publicações
 @app.route('/editar_noticia/<int:id>', methods=['GET', 'POST'])

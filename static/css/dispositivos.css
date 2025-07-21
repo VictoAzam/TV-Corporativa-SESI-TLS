@@ -41,20 +41,57 @@
     box-sizing: border-box;
 }
 
-/* Responsividade do grid */
+/* Responsividade Melhorada */
 @media (max-width: 768px) {
     .dispositivos-grid {
         grid-template-columns: 1fr;
-        padding: 0 1.5rem;
-        gap: 1.25rem;
+        padding: 0 1rem;
+        gap: 1rem;
     }
     
     .header {
-        padding: 1rem 1.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
     }
     
     .footer {
-        padding: 1rem 1.5rem;
+        padding: 1rem;
+    }
+    
+    .dispositivo-card {
+        padding: 1rem;
+        min-height: auto;
+    }
+    
+    .dispositivo-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .dispositivo-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .dispositivo-actions .btn {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+    }
+    
+    .dispositivo-info {
+        margin: 1rem 0;
+    }
+    
+    .dispositivo-info p {
+        margin: 0.5rem 0;
+        font-size: 0.95rem;
     }
 }
 
@@ -272,28 +309,80 @@
     margin-top: 2rem;
 }
 
-/* --- Melhorias de responsividade para telas pequenas --- */
+/* Melhorias para dispositivos móveis */
 @media (max-width: 480px) {
-  body, .container, .container-painel {
-    padding: 0.5rem 0.1rem !important;
-  }
-  .box, .painel, .card, .content, .main {
-    padding: 0.7rem 0.2rem !important;
-    min-height: 120px;
-    font-size: 0.95em;
-    max-width: 99vw;
-  }
-  h1, .box h1, #status-evento {
-    font-size: 1.1em !important;
-    word-break: break-word;
-  }
-  .tempo, #countdown-timer {
-    font-size: 1.1em !important;
-  }
-  .noticia-rapida, .footer, footer {
-    font-size: 0.9em !important;
-    padding: 0.2rem 0.5rem !important;
-    border-radius: 0.7rem;
-    height: 40px !important;
-  }
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        padding: 0 !important;
+    }
+    
+    .header {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .dispositivos-grid {
+        padding: 0 0.5rem;
+        gap: 0.75rem;
+    }
+    
+    .dispositivo-card {
+        padding: 0.75rem;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .dispositivo-header h3 {
+        font-size: 1.1rem;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .dispositivo-info p {
+        font-size: 0.9rem;
+        margin: 0.3rem 0;
+    }
+    
+    .status-badge {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+    
+    .dispositivo-actions {
+        margin-top: 1rem;
+        gap: 0.5rem;
+    }
+    
+    .dispositivo-actions .btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        min-height: 44px; /* Melhor usabilidade touch */
+        border-radius: 5px;
+    }
+    
+    .footer {
+        padding: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .footer .btn {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.1rem;
+        min-height: 48px;
+    }
+    
+    /* Melhorias de toast/alertas em mobile */
+    .alert {
+        margin: 0.5rem;
+        padding: 10px;
+        font-size: 0.9rem;
+        border-radius: 5px;
+    }
 }

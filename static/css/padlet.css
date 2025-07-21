@@ -1,16 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
 
-html {
-    font-size: clamp(14px, 1.2vw, 22px);
-    color: #333;
-}
-
-body {
+html, body {
     margin: 0;
     padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
     font-family: 'Ubuntu', sans-serif;
     background-color: #f5f5f5;
-    overflow-x: hidden;
+    font-size: clamp(14px, 1.2vw, 22px);
+    color: #333;
 }
 
 /* Container principal */
@@ -19,21 +18,35 @@ body {
     position: relative;
 }
 
-/* Iframe do Padlet */
+/* Iframe do Padlet - Tela cheia */
 .padlet-container {
-    width: 100%;
-    height: 85vh;
-    margin: 10px 0;
-    border-radius: 15px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    border: none;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1;
 }
 
 .padlet-container iframe {
     width: 100%;
     height: 100%;
     border: none;
-    border-radius: 15px;
+    margin: 0;
+    padding: 0;
+    /* Melhorias para performance de vídeo/GIF */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: auto;
+    /* Otimizações de renderização */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 /* Link container - oculto */
@@ -41,12 +54,12 @@ body {
     display: none;
 }
 
-/* Relógio */
+/* Relógio - Z-index ajustado */
 .relogio {
     position: fixed;
     top: 20px;
     left: 20px;
-    z-index: 100;
+    z-index: 1000;
     width: 420px;
     background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(10px);
@@ -77,14 +90,14 @@ body {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* QR Code */
+/* QR Code - Posicionamento ajustado */
 #qrcode {
     position: fixed;
     right: 30px;
-    bottom: 140px;
-    z-index: 200;
+    bottom: 30px;
+    z-index: 1000;
     border-radius: 16px;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.95);
     padding: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     width: 200px;
@@ -100,86 +113,137 @@ body {
     border-radius: 8px;
 }
 
-/* Footer - Notícias */
+/* Footer - Removido para tela cheia */
 footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 111px;
-    background: linear-gradient(90deg, rgba(0, 110, 255, 0.8) 0%, rgba(40, 99, 167, 0.9) 100%);
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    white-space: nowrap;
-    z-index: 1000;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: none;
 }
 
 .noticia-rapida {
-    font-size: clamp(1.8rem, 4vh, 3.2rem);
-    font-weight: 500;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 0.8rem 2rem;
-    white-space: nowrap;
-    display: inline-block;
-    border-radius: 25px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    margin-left: 100vw;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: none;
 }
 
 .noticia-text {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Responsividade */
+/* Responsividade - Ajustada para tela cheia */
 @media (max-width: 768px) {
     .relogio {
-        width: 320px;
+        width: 300px;
         top: 10px;
         left: 10px;
         padding: 1rem;
     }
     
     #qrcode {
-        width: 150px;
-        height: 150px;
+        width: 120px;
+        height: 120px;
         right: 15px;
-        bottom: 120px;
-    }
-    
-    .noticia-rapida {
-        font-size: clamp(1.4rem, 3vh, 2.5rem);
-        padding: 0.6rem 1.5rem;
+        bottom: 15px;
+        padding: 8px;
     }
 }
 
-/* --- Melhorias de responsividade para telas pequenas --- */
 @media (max-width: 480px) {
-  body, .container, .container-painel {
-    padding: 0.5rem 0.1rem !important;
-  }
-  .box, .painel, .card, .content, .main {
-    padding: 0.7rem 0.2rem !important;
-    min-height: 120px;
-    font-size: 0.95em;
-    max-width: 99vw;
-  }
-  h1, .box h1, #status-evento {
-    font-size: 1.1em !important;
-    word-break: break-word;
-  }
-  .tempo, #countdown-timer {
-    font-size: 1.1em !important;
-  }
-  .noticia-rapida, .footer, footer {
-    font-size: 0.9em !important;
-    padding: 0.2rem 0.5rem !important;
-    border-radius: 0.7rem;
-    height: 40px !important;
-  }
+    .relogio {
+        width: 250px;
+        top: 5px;
+        left: 5px;
+        padding: 0.8rem;
+    }
+    
+    #data {
+        font-size: clamp(1rem, 2vw, 1.4rem);
+    }
+    
+    #hora {
+        font-size: clamp(2rem, 5vw, 3rem);
+    }
+    
+    #qrcode {
+        width: 100px;
+        height: 100px;
+        right: 10px;
+        bottom: 10px;
+        padding: 6px;
+    }
+}
+
+/* Timer Minimizado do Intervalo */
+.mini-timer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    background: rgba(255, 69, 0, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 12px 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    min-width: 200px;
+    animation: slideInFromTop 0.5s ease-out;
+}
+
+.mini-timer.hidden {
+    display: none;
+}
+
+.mini-timer-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+#mini-timer-text {
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+#mini-timer-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#mini-timer-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+@keyframes slideInFromTop {
+    from {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .mini-timer {
+        top: 10px;
+        right: 10px;
+        min-width: 160px;
+        padding: 10px 15px;
+    }
+    
+    #mini-timer-text {
+        font-size: 1rem;
+    }
 }

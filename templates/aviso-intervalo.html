@@ -64,11 +64,27 @@
                 return; 
             }
 
+            // ===== SALVAR DADOS DO TIMER NO LOCALSTORAGE =====
+            const currentTime = new Date().getTime();
+            const endTime = new Date(currentTime + (tempoRestante * 1000));
+            const timerData = {
+                status: statusElement.textContent,
+                endTime: endTime.toISOString(),
+                isActive: true
+            };
+            
+            // Salvar no localStorage para outras páginas
+            localStorage.setItem('intervaloTimer', JSON.stringify(timerData));
+            console.log('Timer salvo no localStorage:', timerData);
+
             const atualizarContagem = () => {
                 if (tempoRestante <= 0) {
                     clearInterval(intervalo);
                     countdownElement.textContent = "0m 00s";
                     statusElement.textContent = "O tempo acabou!";
+                    
+                    // Remover timer do localStorage quando acabar
+                    localStorage.removeItem('intervaloTimer');
                     
                     setTimeout(() => {
                         window.location.reload();
