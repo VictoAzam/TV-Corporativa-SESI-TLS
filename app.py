@@ -27,6 +27,18 @@ app = Flask(__name__)
 # Configurações com valores padrão para fallback
 app.secret_key = os.getenv('SECRET_KEY', 'S3nh@IFMS')
 
+# Configurações para melhorar compatibilidade com diferentes browsers
+@app.after_request
+def after_request(response):
+    """Adiciona cabeçalhos para melhor compatibilidade entre browsers"""
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    return response
+
 api_key = os.getenv('API_KEY', '0326938873afe9a65f6c965706c4ada4')
 city = os.getenv('CITY', 'Três Lagoas, br')
 CACHE_FILE = os.getenv('CACHE_FILE', 'clima.json')
@@ -147,8 +159,8 @@ HORARIOS_EVENTOS = {
         'descricao': 'Intervalo Contraturno - Tarde'
     },
     "intervalo fund1 tarde": {
-        'inicio': time(14, 40), 
-        'duracao': timedelta(minutes=15),  # 14h40 às 14h55
+        'inicio': time(15, 0), 
+        'duracao': timedelta(minutes=15),  # 15h00 às 15h15 (TESTE ATIVO)
         'tipo': 'intervalo',
         'turno': 'tarde',
         'descricao': 'Intervalo Fundamental I - Tarde'
@@ -540,8 +552,8 @@ with app.app_context():
         
         # Verificar e criar usuário administrador padrão
         try:
-            if not Usuario.query.filter_by(email='marketingsesitls@sesims.com').first():
-                admin_user = Usuario(nome='Admin', email='marketingsesitls@sesims.com', senha='gff$@h12dh')
+            if not Usuario.query.filter_by(email='admin@sesims.com').first():
+                admin_user = Usuario(nome='Admin', email='admin@sesims.com', senha='sesiadmin2025')
                 db.session.add(admin_user)
                 db.session.commit()
                 print("✅ Usuário administrador criado")
@@ -844,21 +856,21 @@ def validar_status(status, valores_validos=['ativo', 'inativo', 'manutencao']):
     except Exception as e:
         print(f"⚠️ Erro na validação de status: {e}")
         return 'ativo'  # Valor padrão seguro
-
-def validar_arquivo_upload(arquivo, tipos_permitidos=['jpg', 'jpeg', 'png', 'gif', 'mp4', 'avi']):
-    """
-    Valida arquivo de upload com verificações de segurança.
-    Retorna (valido: bool, erro: str, nome_seguro: str)
-    """
-    try:
-        if not arquivo:
-            return False, "Nenhum arquivo selecionado", ""
+        if not status:
+            print("📋 Status vazio, usando padrão 'ativo'")
+            return 'ativo'
         
-        if arquivo.filename == '':
-            return False, "Nome do arquivo está vazio", ""
+        # Sanitizar entrada
+        status_limpo = str(status).lower().strip()
         
-        # Verificar extensão
-        if '.' not in arquivo.filename:
+        # Verificar se está na lista de valores válidos
+        if status_limpo in valores_validos:
+            print(f"✅ Status válido: {status_limpo}")
+            return status_limpo
+        else:
+            print(f"⚠️ Status inválido '{status_limpo}', usando padrão 'ativo'")
+            print(f"   Valores válidos: {valores_validos}")
+            return 'ativo'
             return False, "Arquivo sem extensão", ""
         
         extensao = arquivo.filename.rsplit('.', 1)[1].lower()
@@ -1673,38 +1685,6 @@ def configurar_dispositivo_exemplo():
         flash('Dispositivo de exemplo não encontrado.', 'info')
         return redirect(url_for('listar_dispositivos'))
 
-@app.route('/testar_clima')
-@login_required
-def testar_clima():
-    """Rota para testar manualmente a busca de dados do clima"""
-    try:
-        print("🧪 Teste manual da função de clima...")
-        fetch_and_cache_weather()
-        
-        if os.path.exists(CACHE_FILE):
-            with open(CACHE_FILE, 'r', encoding='utf-8') as f:
-                dados = json.load(f)
-            
-            return jsonify({
-                'status': 'sucesso',
-                'arquivo_existe': True,
-                'cidade': dados.get('city', {}).get('name', 'N/A'),
-                'previsoes': len(dados.get('list', [])),
-                'primeira_temp': dados['list'][0]['main']['temp'] if dados.get('list') else 'N/A'
-            })
-        else:
-            return jsonify({
-                'status': 'erro',
-                'arquivo_existe': False,
-                'mensagem': 'Arquivo não foi criado'
-            })
-            
-    except Exception as e:
-        return jsonify({
-            'status': 'erro',
-            'erro': str(e)
-        })
-
 # Rotas para edição de publicações
 @app.route('/editar_noticia/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -2221,5 +2201,66 @@ def testar_horarios():
             'erro': 'Erro interno no teste de horários',
             'detalhes': str(e)
         }), 500
+
+@app.route("/debug-status")
+def debug_status():
+    """Rota para debugar o status atual do sistema de intervalos"""
+    try:
+        from datetime import datetime
+        agora = datetime.now()
+        agora_time = agora.time()
+        turno = get_turno_atual(agora_time)
+        status = get_status_intervalo()
+        
+        # Debug dos eventos do turno atual
+        eventos_turno = {
+            nome: detalhes for nome, detalhes in HORARIOS_EVENTOS.items()
+            if detalhes.get('turno') == turno or detalhes.get('turno') is None
+        }
+        
+        debug_eventos = {}
+        for nome, detalhes in eventos_turno.items():
+            inicio_dt = datetime.combine(agora.date(), detalhes['inicio'])
+            fim_dt = inicio_dt + detalhes['duracao']
+            tempo_para_inicio = inicio_dt - agora
+            tempo_para_fim = fim_dt - agora
+            
+            debug_eventos[nome] = {
+                'inicio': str(detalhes['inicio']),
+                'fim': fim_dt.strftime('%H:%M:%S'),
+                'duracao_min': int(detalhes['duracao'].total_seconds() / 60),
+                'tipo': detalhes['tipo'],
+                'turno': detalhes.get('turno'),
+                'tempo_para_inicio_seg': int(tempo_para_inicio.total_seconds()),
+                'tempo_para_fim_seg': int(tempo_para_fim.total_seconds()),
+                'dentro_horario': (tempo_para_inicio.total_seconds() <= 0 <= tempo_para_fim.total_seconds()),
+                'aviso_antecipado': (0 <= tempo_para_inicio.total_seconds() <= AVISO_ANTECIPADO.total_seconds())
+            }
+        
+        return jsonify({
+            'horario_atual': agora.strftime('%H:%M:%S'),
+            'data_atual': agora.strftime('%Y-%m-%d'),
+            'dia_semana': agora.weekday(),
+            'turno_atual': turno,
+            'status_intervalo': status,
+            'debug_eventos': debug_eventos,
+            'constantes': {
+                'AVISO_ANTECIPADO_min': int(AVISO_ANTECIPADO.total_seconds() / 60),
+                'AVISO_FIM_min': int(AVISO_FIM.total_seconds() / 60)
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'erro': str(e),
+            'horario_atual': datetime.now().strftime('%H:%M:%S')
+        }), 500
+
+@app.route("/teste-chrome")
+def teste_chrome():
+    """Página de teste para verificar compatibilidade com Chrome"""
+    status_intervalo = get_status_intervalo()
+    return render_template('teste-chrome.html', **status_intervalo)
+
 if __name__ == "__main__":
+    # Para acesso de outras máquinas na rede local
     app.run(debug=True, host="0.0.0.0", port=5000)

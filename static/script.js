@@ -1,5 +1,38 @@
+// Função de diagnóstico para Chrome
+function diagnosticarChrome() {
+    const info = {
+        userAgent: navigator.userAgent,
+        isChrome: navigator.userAgent.includes('Chrome'),
+        isEdge: navigator.userAgent.includes('Edg'),
+        isFirefox: navigator.userAgent.includes('Firefox'),
+        isSafari: navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome'),
+        url: window.location.href,
+        pathname: window.location.pathname,
+        timestamp: new Date().toISOString(),
+        hasLocalStorage: typeof Storage !== 'undefined',
+        hasSetTimeout: typeof setTimeout !== 'undefined',
+        hasConsole: typeof console !== 'undefined'
+    };
+    
+    console.log('🔍 DIAGNÓSTICO DE BROWSER:', info);
+    
+    // Verificar variáveis globais relacionadas ao aviso
+    const variaveis = {};
+    if (typeof window.SHOW_AVISO !== 'undefined') variaveis.windowSHOW_AVISO = window.SHOW_AVISO;
+    if (typeof SHOW_AVISO !== 'undefined') variaveis.SHOW_AVISO = SHOW_AVISO;
+    if (typeof window.TV_CORPORATIVA_CONFIG !== 'undefined') variaveis.TV_CORPORATIVA_CONFIG = window.TV_CORPORATIVA_CONFIG;
+    
+    console.log('📊 VARIÁVEIS DISPONÍVEIS:', variaveis);
+    
+    return { info, variaveis };
+}
+
 // Adiciona um único "ouvinte" que espera a página carregar completamente.
 document.addEventListener("DOMContentLoaded", function() {
+
+    // Executar diagnóstico primeiro
+    const diagnostico = diagnosticarChrome();
+    console.log('🚀 Script carregado completamente em:', diagnostico.info.isChrome ? 'Chrome' : 'Outro browser');
 
     // ======================================================
     // SEÇÃO 1: LÓGICA DO RELÓGIO
@@ -141,20 +174,34 @@ document.addEventListener("DOMContentLoaded", function() {
         return; // Sai da função, não faz rotação
     }
 
-    // 1. OBTER DADOS DO PYTHON - Com fallback seguro
+    // 1. OBTER DADOS DO PYTHON - Com fallback seguro e debug aprimorado
     let deveMostrarAviso = false;
     
-    if (typeof window.SHOW_AVISO !== "undefined") {
+    // Log de debug detalhado para identificar problemas no Chrome
+    console.log("=== DEBUG ROTAÇÃO DE PÁGINAS ===");
+    console.log("User Agent:", navigator.userAgent);
+    console.log("URL atual:", window.location.href);
+    console.log("Pathname atual:", paginaAtualPath);
+    
+    // Verificação melhorada das variáveis
+    if (typeof window.TV_CORPORATIVA_CONFIG !== 'undefined' && window.TV_CORPORATIVA_CONFIG.showAviso !== undefined) {
+        deveMostrarAviso = window.TV_CORPORATIVA_CONFIG.showAviso;
+        console.log("✅ Usando window.TV_CORPORATIVA_CONFIG.showAviso:", deveMostrarAviso);
+    } else if (typeof window.SHOW_AVISO !== "undefined") {
         deveMostrarAviso = window.SHOW_AVISO;
-        console.log("Usando window.SHOW_AVISO:", deveMostrarAviso);
+        console.log("✅ Usando window.SHOW_AVISO:", deveMostrarAviso);
     } else if (typeof SHOW_AVISO !== "undefined") {
         deveMostrarAviso = SHOW_AVISO;
-        console.log("Usando SHOW_AVISO:", deveMostrarAviso);
+        console.log("✅ Usando SHOW_AVISO:", deveMostrarAviso);
     } else {
-        console.log("NENHUMA variável SHOW_AVISO encontrada!");
+        console.log("❌ NENHUMA variável SHOW_AVISO encontrada!");
+        console.log("   - window.SHOW_AVISO existe?", typeof window.SHOW_AVISO);
+        console.log("   - SHOW_AVISO existe?", typeof SHOW_AVISO);
+        console.log("   - window.TV_CORPORATIVA_CONFIG existe?", typeof window.TV_CORPORATIVA_CONFIG);
+        console.log("   - Todas as variáveis window:", Object.keys(window).filter(k => k.includes('SHOW')));
     }
     
-    console.log("Condição para mostrar a página de aviso:", deveMostrarAviso);
+    console.log("Condição final para mostrar aviso:", deveMostrarAviso);
 
     // 2. MONTAR A LISTA DE PÁGINAS VÁLIDAS PARA ESTE MOMENTO
     const paginasBase = ['/', '/clima', '/padlet'];
@@ -185,10 +232,25 @@ document.addEventListener("DOMContentLoaded", function() {
         proximaPagina = paginasBase[0];
     }
 
-    // 5. AGENDAR O REDIRECIONAMENTO
-    setTimeout(function() {
-        window.location.href = proximaPagina;
+    // 5. AGENDAR O REDIRECIONAMENTO com logs aprimorados
+    console.log(`⏰ Agendando redirecionamento em ${tempoDeExibicao/1000} segundos para: ${proximaPagina}`);
+    
+    const timeoutId = setTimeout(function() {
+        console.log(`🔄 Executando redirecionamento para: ${proximaPagina}`);
+        console.log("   - Método usado: window.location.href");
+        console.log("   - Timestamp:", new Date().toISOString());
+        
+        try {
+            window.location.href = proximaPagina;
+        } catch (error) {
+            console.error("❌ Erro durante redirecionamento:", error);
+            // Fallback para navegadores mais restritivos
+            console.log("🔄 Tentando método alternativo...");
+            window.location.assign(proximaPagina);
+        }
     }, tempoDeExibicao);
+    
+    console.log("✅ Timer configurado com ID:", timeoutId);
 
     // =========================
     // ROTAÇÃO DE EVENTOS PAINEL

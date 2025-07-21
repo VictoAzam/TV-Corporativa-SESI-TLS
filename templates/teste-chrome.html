@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Chrome - TV Corporativa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1c1c1c;
+            color: white;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .debug-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+        .status {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Compatibilidade Chrome</h1>
+    
+    <div class="debug-info">
+        <h3>Informações do Browser:</h3>
+        <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
+        <p><strong>URL:</strong> <span id="currentUrl"></span></p>
+        <p><strong>Hora atual:</strong> <span id="currentTime"></span></p>
+    </div>
+
+    <div class="debug-info">
+        <h3>Status do Sistema de Intervalos:</h3>
+        <p><strong>SHOW_AVISO:</strong> <span id="showAviso" class="status">{{ show_aviso|tojson|default('false') }}</span></p>
+        <p><strong>Mensagem:</strong> <span id="mensagem">{{ mensagem_status|default('Nenhuma') }}</span></p>
+        <p><strong>Tipo de Evento:</strong> <span id="tipoEvento">{{ tipo_evento|default('Nenhum') }}</span></p>
+        <p><strong>Tempo Restante:</strong> <span id="tempoRestante">{{ tempo_restante_segundos|default('N/A') }}</span></p>
+    </div>
+
+    <div class="debug-info">
+        <h3>Testes de Funcionalidade:</h3>
+        <button onclick="testarRedirecionamento()">Testar Redirecionamento</button>
+        <button onclick="testarTimer()">Testar Timer (5s)</button>
+        <button onclick="verificarVariaveis()">Verificar Variáveis</button>
+        <button onclick="irParaAviso()">Ir para Aviso-Intervalo</button>
+        <div id="resultadoTeste" class="status"></div>
+    </div>
+
+    <div class="debug-info">
+        <h3>Console Logs:</h3>
+        <div id="consoleLogs" style="background: #000; padding: 1rem; font-family: monospace; height: 200px; overflow-y: auto;">
+        </div>
+    </div>
+
+    <script>
+        // Variável definida pelo Flask
+        window.SHOW_AVISO = {{ show_aviso|tojson|default('false') }};
+        
+        // Função para capturar logs do console
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleDiv = document.getElementById('consoleLogs');
+        
+        function addToConsole(message, type = 'log') {
+            const time = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff6b6b' : '#4ecdc4';
+            consoleDiv.innerHTML += `<div style="color: ${color}">[${time}] ${message}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+
+        // Inicialização da página
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('userAgent').textContent = navigator.userAgent;
+            document.getElementById('currentUrl').textContent = window.location.href;
+            document.getElementById('currentTime').textContent = new Date().toLocaleString();
+            
+            console.log('🧪 Página de teste carregada');
+            console.log('Browser:', navigator.userAgent.includes('Chrome') ? 'Chrome' : 'Outro');
+            console.log('SHOW_AVISO:', window.SHOW_AVISO);
+            
+            verificarVariaveis();
+        });
+
+        function testarRedirecionamento() {
+            console.log('🔄 Testando redirecionamento...');
+            document.getElementById('resultadoTeste').innerHTML = '<span class="warning">Redirecionando em 3 segundos...</span>';
+            
+            setTimeout(() => {
+                try {
+                    window.location.href = '/';
+                } catch (error) {
+                    console.error('❌ Erro no redirecionamento:', error);
+                    document.getElementById('resultadoTeste').innerHTML = '<span class="error">Erro no redirecionamento</span>';
+                }
+            }, 3000);
+        }
+
+        function testarTimer() {
+            console.log('⏰ Testando timer...');
+            let contador = 5;
+            const interval = setInterval(() => {
+                document.getElementById('resultadoTeste').innerHTML = `<span class="warning">Timer: ${contador}s</span>`;
+                contador--;
+                
+                if (contador < 0) {
+                    clearInterval(interval);
+                    document.getElementById('resultadoTeste').innerHTML = '<span class="success">✅ Timer funcionou!</span>';
+                    console.log('✅ Timer concluído com sucesso');
+                }
+            }, 1000);
+        }
+
+        function verificarVariaveis() {
+            console.log('🔍 Verificando variáveis...');
+            
+            const vars = {
+                'window.SHOW_AVISO': typeof window.SHOW_AVISO,
+                'SHOW_AVISO': typeof SHOW_AVISO,
+                'localStorage disponível': typeof Storage !== 'undefined',
+                'setTimeout disponível': typeof setTimeout,
+                'window.location disponível': typeof window.location
+            };
+            
+            let resultado = '<div>';
+            for (const [nome, tipo] of Object.entries(vars)) {
+                const status = tipo !== 'undefined' ? '✅' : '❌';
+                resultado += `<div>${status} ${nome}: ${tipo}</div>`;
+                console.log(`${status} ${nome}:`, tipo);
+            }
+            resultado += '</div>';
+            
+            document.getElementById('resultadoTeste').innerHTML = resultado;
+        }
+
+        function irParaAviso() {
+            console.log('🚨 Navegando para aviso-intervalo...');
+            window.location.href = '/aviso-intervalo';
+        }
+    </script>
+</body>
+</html>
