@@ -1624,7 +1624,7 @@ def clima():
 
 @app.route('/testar_clima')
 @login_required
-def testar_clima():
+def testar_clima_manual():
     """
     Rota para testar a API do clima manualmente (apenas para administradores)
     """
