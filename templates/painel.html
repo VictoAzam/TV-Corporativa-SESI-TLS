@@ -4,12 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="{{ url_for('static', filename='painel-config.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <title>Painel - TV Corporativa SESI</title>
+</head>
+<body>
+    <main>
+        <div class="container painel" id="painel-principal">
+            <div id="midia-container"></div>
+            
+            <div class="relogio">
+                <h1 id="data"></h1>
+                <h1 id="hora"></h1>
+            </div>
+            
+            <div class="link">
+                <div class="descricao" id="descricao-container" style="display: none;"></div>
+                <div id="qrcode" style="display: none;"></div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="noticia-rapida">
+            {% for n in noticia %}
+                <span class="noticia-text">{{ n.conteudo }}</span>
+                {% if not loop.last %} • {% endif %}
+            {% endfor %}
+            <!-- Integrar créditos como parte das notícias -->
+            {% if noticia %}
+                <span class="noticia-text" style="font-style: italic; opacity: 0.8;">|</span>
+            {% else %}
+                <span class="noticia-text" style="font-style: italic; opacity: 0.8;">|</span>
+            {% endif %}
+        </div>
+    </footer>
+
+    <!-- Configuração do painel (sem erros de linting) -->
     <script>
-        window.SHOW_AVISO = {{ show_aviso|tojson|default('false') }};
-        window.eventosPainel = [
-            {% for ev in evento %}
+        // Inicializar configurações do painel
+        inicializarPainel({
+            showAviso: {{ show_aviso|tojson|default('false') }},
+            eventos: [
+                {% for ev in evento %}
                 {
                     imagem: "{{ url_for('static', filename=ev.imagem) if ev.imagem else '' }}",
                     video: "{{ url_for('static', filename=ev.video) if ev.video else '' }}",
@@ -18,36 +56,13 @@
                     descricao: "{{ ev.descricao|e }}",
                     cor_fundo: "{{ ev.cor_fundo or '#667eea' }}"
                 }{% if not loop.last %},{% endif %}
-            {% endfor %}
-        ];
+                {% endfor %}
+            ]
+        });
+        
+        // Compatibilidade com código existente
+        window.SHOW_AVISO = {{ show_aviso|tojson|default('false') }};
+        window.eventosPainel = window.painelConfig.eventos;
     </script>
-    <title>Painel</title>
-</head>
-<body>
-    <main>
-        <div class="container painel" id="painel-principal">
-            <div id="midia-container"></div>
-            <div class="relogio">
-                <h1 id="data"></h1>
-                <h1 id="hora"></h1>
-            </div>
-            <div class="link">
-                <div class="descricao" id="descricao-container" style="display: none;"></div>
-                <div id="qrcode" style="display: none;"></div>
-            </div>
-        </div>
-    </main>
-    <footer>
-        <div class="noticia-rapida">
-            {% for n in noticia %}
-                <span class="noticia-text">{{ n.conteudo }}</span>
-            {% endfor %}
-            <!-- Integrar créditos como parte das notícias -->
-            {% if noticia %}
-                <span class="noticia-text" style="font-style: italic; opacity: 0.8;"> • </span>
-            {% endif %}
-           
-        </div>
-    </footer>
 </body>
 </html>

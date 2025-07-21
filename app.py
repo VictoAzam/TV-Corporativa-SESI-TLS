@@ -422,16 +422,53 @@ def fetch_and_cache_weather():
     Busca a previsão do tempo na API e salva em um arquivo local para evitar consultas repetidas.
     Se houver algum erro de rede, mostra uma mensagem no terminal.
     """
+    print("🌤️ Buscando dados do clima...")
     url = f'https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units=metric&lang=pt_br'
+    
     try:
-        response = requests.get(url, verify=False)
+        print(f"📡 Fazendo requisição para: {url[:50]}...")
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
+        
         dados_previsao = response.json()
-        with open(CACHE_FILE, 'w', encoding='utf-8') as f:
+        
+        # Verificar se a resposta contém dados válidos
+        if 'list' not in dados_previsao or not dados_previsao['list']:
+            print("❌ Resposta da API não contém dados de previsão válidos")
+            return
+        
+        # Salvar arquivo de cache
+        cache_path = os.path.join(os.path.dirname(__file__), CACHE_FILE)
+        with open(cache_path, 'w', encoding='utf-8') as f:
             json.dump(dados_previsao, f, ensure_ascii=False, indent=4)
-    except requests.exceptions.RequestException as e:
-        print(f"Erro ao buscar dados do clima: {e}")
-        # Adicionar log se necessário
+        
+        print(f"✅ Dados do clima salvos em {cache_path}")
+        print(f"🌡️ Temperatura atual: {dados_previsao['list'][0]['main']['temp']:.1f}°C")
+        print(f"🏙️ Cidade: {dados_previsao['city']['name']}")
+        
+    except requests.exceptions.Timeout:
+        print("⏱️ Timeout ao buscar dados do clima - Servidor demorou para responder")
+    except requests.exceptions.ConnectionError:
+        print("🔌 Erro de conexão ao buscar dados do clima - Verifique a internet")
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            print("🔑 Erro 401: API Key inválida! Verifique a chave no arquivo .env")
+            print("   Obtenha uma chave gratuita em: https://openweathermap.org/api")
+        elif e.response.status_code == 404:
+            print(f"🏙️ Erro 404: Cidade '{city}' não encontrada! Verifique o nome no arquivo .env")
+        else:
+            print(f"🌐 Erro HTTP {e.response.status_code} ao buscar dados do clima")
+    except json.JSONDecodeError:
+        print("📄 Erro ao decodificar resposta JSON da API do clima")
+    except Exception as e:
+        print(f"❌ Erro inesperado ao buscar dados do clima: {e}")
+
+def buscar_clima_agora():
+    """
+    Função auxiliar para buscar o clima imediatamente (para testes)
+    """
+    print("🔄 Iniciando busca manual do clima...")
+    fetch_and_cache_weather()
 
 
 class Dispositivo(db.Model):
@@ -505,8 +542,8 @@ with app.app_context():
         
         # Verificar e criar usuário administrador padrão
         try:
-            if not Usuario.query.filter_by(email='admin@example.com').first():
-                admin_user = Usuario(nome='Admin', email='admin@example.com', senha='admin')
+            if not Usuario.query.filter_by(email='marketingsesitls@sesims.com').first():
+                admin_user = Usuario(nome='Admin', email='marketingsesitls@sesims.com', senha='gff$@h12dh')
                 db.session.add(admin_user)
                 db.session.commit()
                 print("✅ Usuário administrador criado")
@@ -1177,6 +1214,14 @@ for hora, minuto in horarios_agendados:
     scheduler.add_job(fetch_and_cache_weather, 'cron', hour=hora, minute=minuto)
 scheduler.start()
 
+# Buscar dados do clima imediatamente ao iniciar o servidor
+print("🚀 Iniciando busca inicial dos dados do clima...")
+try:
+    fetch_and_cache_weather()
+except Exception as e:
+    print(f"⚠️ Erro na busca inicial do clima: {e}")
+    print("   Os dados serão buscados no próximo horário agendado.")
+
 
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
@@ -1518,16 +1563,17 @@ def clima():
     status_intervalo = get_status_intervalo()
     clima_data = None
     erro_msg = None
-    noticia = Noticia.query.all()
-    evento = Evento.query.all()
-    noticia = Noticia.query.all()
-    evento = Evento.query.all()
+    noticia = Noticia.query.filter_by(status='ativa').all()
+    evento = Evento.query.filter_by(status='ativo').all()
 
-    if not os.path.exists(CACHE_FILE):
+    cache_path = os.path.join(os.path.dirname(__file__), CACHE_FILE)
+    
+    if not os.path.exists(cache_path):
         erro_msg = "Dados do clima ainda não disponíveis. Aguardando a primeira busca."
+        print(f"⚠️ Arquivo de cache não encontrado: {cache_path}")
     else:
         try:
-            with open(CACHE_FILE, 'r', encoding='utf-8') as f:
+            with open(cache_path, 'r', encoding='utf-8') as f:
                 dados_previsao = json.load(f)
 
             primeira_previsao = dados_previsao['list'][0]
@@ -1539,8 +1585,10 @@ def clima():
                 'vento': round(primeira_previsao['wind']['speed'] * 3.6, 1),
                 'icone': primeira_previsao['weather'][0]['icon'],
             }
+            print(f"✅ Dados do clima carregados: {clima_data['cidade']} - {clima_data['temperatura']}°C")
         except (IOError, json.JSONDecodeError, KeyError) as e:
             erro_msg = "Ocorreu um erro ao carregar os dados do clima."
+            print(f"❌ Erro ao processar cache do clima: {e}")
             
     return render_template(
         'clima.html',
@@ -1550,6 +1598,43 @@ def clima():
         evento=evento,
         **status_intervalo
     )
+
+@app.route('/testar_clima')
+@login_required
+def testar_clima():
+    """
+    Rota para testar a API do clima manualmente (apenas para administradores)
+    """
+    try:
+        print("🧪 Teste manual da API do clima iniciado...")
+        fetch_and_cache_weather()
+        
+        # Verificar se o arquivo foi criado
+        cache_path = os.path.join(os.path.dirname(__file__), CACHE_FILE)
+        if os.path.exists(cache_path):
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                dados = json.load(f)
+            
+            resultado = {
+                'sucesso': True,
+                'mensagem': 'Dados do clima atualizados com sucesso!',
+                'cidade': dados['city']['name'],
+                'temperatura': f"{dados['list'][0]['main']['temp']:.1f}°C",
+                'condicao': dados['list'][0]['weather'][0]['description'],
+                'timestamp': datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+            }
+        else:
+            resultado = {
+                'sucesso': False,
+                'mensagem': 'Arquivo de cache não foi criado. Verifique a API key.'
+            }
+    except Exception as e:
+        resultado = {
+            'sucesso': False,
+            'mensagem': f'Erro ao testar API: {str(e)}'
+        }
+    
+    return jsonify(resultado)
 
 
 @app.route('/configurar_dispositivo_exemplo')
