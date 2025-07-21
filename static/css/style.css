@@ -4,7 +4,6 @@ html {
     font-size: clamp(14px, 1.2vw, 22px);
     color: #333;
 }
-
 body {
     margin: 0;
     padding: 0;
@@ -180,6 +179,10 @@ input {
     font-weight: bold;
 }
 
+/* ==================================================
+   PAINEL PRINCIPAL - ESTILOS BASE
+   ================================================== */
+
 .painel {
     background-size: cover;
     position: relative;
@@ -190,6 +193,7 @@ input {
     background-repeat: no-repeat;
     transition: background-image 0.5s ease-in-out;
     padding: 0;
+    overflow: hidden;
 }
 
 #midia-container {
@@ -209,77 +213,95 @@ input {
 /* Overlay para mensagens de texto sobre a imagem */
 .mensagem-overlay {
     position: absolute;
-    bottom: 150px; /* Acima do footer */
+    bottom: clamp(140px, 15vh, 180px);
     left: 50%;
     transform: translateX(-50%);
     z-index: 100;
-    max-width: 80%;
+    max-width: clamp(80%, 90vw, 95%);
     text-align: center;
 }
 
 .mensagem-texto {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     color: white;
-    padding: 20px 30px;
-    border-radius: 15px;
+    padding: clamp(15px, 2.5vw, 30px);
+    border-radius: clamp(10px, 1.5vw, 20px);
     margin-bottom: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mensagem-texto p {
-    font-size: 1.8em;
+    font-size: clamp(1.2rem, 2.2vw, 2.2rem);
     margin: 0;
     line-height: 1.4;
     font-weight: 500;
 }
 
+/* ==================================================
+   RELÓGIO - DESIGN RESPONSIVO APRIMORADO
+   ================================================== */
 
 .relogio {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: clamp(15px, 2vh, 25px);
+    left: clamp(15px, 2vw, 25px);
     z-index: 10;
     height: auto;
-    width: clamp(300px, 25vw, 420px);
-    min-width: 280px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 25px;
+    width: clamp(280px, 28vw, 450px);
+    min-width: 260px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: clamp(15px, 2vw, 25px);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 1rem;
+    padding: clamp(0.8rem, 1.5vw, 1.2rem);
     text-align: center;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 #data {
     color: white;
     margin: 0;
+    font-size: clamp(1rem, 2vw, 1.8rem);
+    font-weight: 400;
+    opacity: 0.9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 #hora {
     margin: 0;
     color: white;
-    font-size: clamp(3rem, 6vw, 4.5rem);
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 600;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+    letter-spacing: -0.02em;
 }
+
+/* ==================================================
+   QR CODE - POSICIONAMENTO INTELIGENTE
+   ================================================== */
 
 #qrcode {
     position: fixed;
-    right: clamp(15px, 3vw, 30px);
-    bottom: clamp(100px, 12vh, 125px);
+    right: clamp(15px, 2.5vw, 30px);
+    bottom: clamp(120px, 14vh, 140px);
     z-index: 200;
-    border-radius: 16px;
+    border-radius: clamp(12px, 1.5vw, 18px);
     background: #fff;
-    padding: clamp(8px, 1.2vw, 12px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-    width: clamp(120px, 12vw, 200px);
-    height: clamp(120px, 12vw, 200px);
+    padding: clamp(8px, 1vw, 15px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    width: clamp(100px, 12vw, 220px);
+    height: clamp(100px, 12vw, 220px);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.9);
 }
 
 #qrcode canvas,
@@ -287,7 +309,49 @@ input {
     width: 100% !important;
     height: 100% !important;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: clamp(6px, 0.8vw, 10px);
+}
+
+/* ==================================================
+   DESCRIÇÃO DO EVENTO - LAYOUT FLUIDO
+   ================================================== */
+
+#descricao-container {
+    position: absolute;
+    bottom: clamp(120px, 14vh, 140px);
+    left: clamp(15px, 2.5vw, 30px);
+    z-index: 10;
+    height: auto;
+    max-width: clamp(300px, 45vw, 800px);
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: clamp(15px, 2vw, 25px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: clamp(1rem, 1.8vw, 1.5rem);
+    text-align: left;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+#descricao-container h2 {
+    color: white;
+    margin: 0 0 clamp(0.3rem, 0.8vw, 0.6rem) 0;
+    font-size: clamp(1.4rem, 2.8vw, 2.8rem);
+    font-weight: 600;
+    line-height: 1.2;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+#descricao-container p {
+    color: white;
+    margin: 0;
+    font-size: clamp(1rem, 2vw, 2rem);
+    line-height: 1.4;
+    opacity: 0.95;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 /* Footer com notícia */
@@ -297,12 +361,19 @@ footer {
     left: 0;
     width: 100%;
     height: 111px;
-    background: linear-gradient(90deg, rgba(0, 110, 255, 0.67) 0%, rgba(0, 0, 0, 0) 100%), #2863a7;
+    background: linear-gradient(90deg, rgba(0, 110, 255, 0.534) 0%, rgba(0, 0, 0, 0) 100%), #2863a7;
     display: flex;
     align-items: center;
     overflow: hidden;
     white-space: nowrap;
     z-index: 1000;
+}
+
+/* Reduce blur for mobile devices to improve performance */
+@media (max-width: 767px) {
+    footer {
+        backdrop-filter: blur(3px);
+    }
 }
 
 .noticia-rapida {
@@ -318,169 +389,381 @@ footer {
   margin-left: 100vw;
 }
 
-/* Responsividade para telas muito grandes */
-@media (min-width: 1600px) {
+@keyframes noticia-marquee {
+    0% {
+        left: 100vw;
+    }
+    100% {
+        left: -100%;
+    }
+}
+
+/* ==================================================
+   MEDIA QUERIES - RESPONSIVIDADE APRIMORADA
+   ================================================== */
+
+/* Ultra Wide e 4K+ (2560px+) */
+@media (min-width: 2560px) {
     .relogio {
-        width: clamp(400px, 20vw, 500px);
+        width: clamp(500px, 22vw, 600px);
+        padding: 2rem;
+        top: 30px;
+        left: 30px;
+    }
+    
+    #hora {
+        font-size: clamp(5rem, 6vw, 7rem);
+    }
+    
+    #data {
+        font-size: clamp(2rem, 2.5vw, 3rem);
+    }
+    
+    #descricao-container {
+        max-width: clamp(800px, 35vw, 1200px);
+        padding: 2rem;
+        bottom: 160px;
+        left: 30px;
+    }
+    
+    #descricao-container h2 {
+        font-size: clamp(3rem, 3.5vw, 4.5rem);
+    }
+    
+    #descricao-container p {
+        font-size: clamp(2rem, 2.5vw, 3rem);
+    }
+    
+    #qrcode {
+        width: clamp(250px, 18vw, 300px);
+        height: clamp(250px, 18vw, 300px);
+        padding: 20px;
+        right: 30px;
+        bottom: 160px;
+    }
+    
+    footer {
+        height: 111px;
+    }
+}
+
+/* Desktop Large (1600px - 2559px) */
+@media (min-width: 1600px) and (max-width: 2559px) {
+    .relogio {
+        width: clamp(400px, 24vw, 500px);
         padding: 1.5rem;
     }
     
     #hora {
-        font-size: clamp(4rem, 5vw, 6rem);
+        font-size: clamp(4rem, 5.5vw, 6rem);
     }
     
     #data {
-        font-size: clamp(1.5rem, 2vw, 2.5rem);
-    }
-    
-    #descricao-container {
-        max-width: clamp(600px, 40vw, 1000px);
-        padding: 1.5rem;
-    }
-    
-    #descricao-container h2 {
-        font-size: clamp(2rem, 3vw, 3.5rem);
-    }
-    
-    #descricao-container p {
         font-size: clamp(1.5rem, 2.2vw, 2.5rem);
     }
     
-    #qrcode {
-        width: clamp(180px, 15vw, 250px);
-        height: clamp(180px, 15vw, 250px);
-        padding: 15px;
-    }
-    
-    .noticia-rapida {
-        font-size: clamp(2.5rem, 3.5vh, 4rem);
-    }
-}
-
-@media (max-width: 950px) {
-    body {
-        justify-content: flex-start;
-        padding-top: 4rem;
-    }
-
-    .relogio {
-        position: relative;
-        width: 90%;
-        max-width: 350px;
-        margin: 1rem auto 2rem auto;
-        top: 0;
-        left: 0;
-    }
-    
     #descricao-container {
-        position: relative;
-        bottom: auto;
-        left: auto;
-        margin: 1rem auto;
-        width: 90%;
-        max-width: 600px;
-    }
-    
-    #qrcode {
-        position: relative;
-        right: auto;
-        bottom: auto;
-        margin: 1rem auto;
-        width: clamp(100px, 15vw, 150px);
-        height: clamp(100px, 15vw, 150px);
-    }
-}
-
-/* Responsividade para telas médias */
-@media (max-width: 768px) {
-    .relogio {
-        width: 95%;
-        max-width: 300px;
-        padding: 0.8rem;
-    }
-    
-    #hora {
-        font-size: clamp(2rem, 5vw, 3.5rem);
-    }
-    
-    #data {
-        font-size: clamp(0.9rem, 2.5vw, 1.4rem);
-    }
-    
-    #descricao-container {
-        width: 95%;
-        padding: 0.8rem;
+        max-width: clamp(600px, 42vw, 1000px);
+        padding: 1.5rem;
     }
     
     #descricao-container h2 {
-        font-size: clamp(1rem, 2vw, 1.8rem);
+        font-size: clamp(2.2rem, 3.2vw, 3.8rem);
     }
     
     #descricao-container p {
-        font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+        font-size: clamp(1.6rem, 2.4vw, 2.8rem);
     }
     
     #qrcode {
-        width: clamp(80px, 12vw, 120px);
-        height: clamp(80px, 12vw, 120px);
-        padding: 6px;
+        width: clamp(180px, 16vw, 250px);
+        height: clamp(180px, 16vw, 250px);
+        padding: 15px;
     }
 }
 
-/* Responsividade para telas pequenas */
-@media (max-width: 480px) {
-    .container, .container-painel, .painel {
-        padding: 0.2rem 0.1rem !important;
-        width: 100vw;
-    }
-    
+/* Desktop Standard (1200px - 1599px) */
+@media (min-width: 1200px) and (max-width: 1599px) {
     .relogio {
-        width: 98%;
-        max-width: 250px;
-        padding: 0.5rem;
-        border-radius: 15px;
-        margin: 0.5rem auto 1rem auto;
+        width: clamp(320px, 26vw, 400px);
+        padding: 1.2rem;
     }
     
     #hora {
-        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-size: clamp(3.2rem, 5.2vw, 4.8rem);
     }
     
     #data {
-        font-size: clamp(0.7rem, 2vw, 1rem);
+        font-size: clamp(1.2rem, 2vw, 1.8rem);
     }
     
     #descricao-container {
-        width: 98%;
-        padding: 0.5rem;
-        border-radius: 15px;
-        max-width: none;
+        max-width: clamp(450px, 45vw, 700px);
+        padding: 1.2rem;
     }
     
     #descricao-container h2 {
-        font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+        font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+    }
+    
+    #descricao-container p {
+        font-size: clamp(1.2rem, 2vw, 2rem);
+    }
+    
+    #qrcode {
+        width: clamp(140px, 14vw, 180px);
+        height: clamp(140px, 14vw, 180px);
+        padding: 12px;
+    }
+}
+
+/* Tablet Landscape & Small Desktop (1024px - 1199px) */
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .relogio {
+        width: clamp(300px, 28vw, 360px);
+        padding: 1rem;
+        top: 15px;
+        left: 15px;
+    }
+    
+    #hora {
+        font-size: clamp(2.8rem, 4.8vw, 3.8rem);
+    }
+    
+    #data {
+        font-size: clamp(1rem, 1.8vw, 1.4rem);
+    }
+    
+    #descricao-container {
+        max-width: clamp(400px, 48vw, 600px);
+        padding: 1rem;
+        bottom: 100px;
+        left: 15px;
+    }
+    
+    #descricao-container h2 {
+        font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+    }
+    
+    #descricao-container p {
+        font-size: clamp(1rem, 1.8vw, 1.6rem);
+    }
+    
+    #qrcode {
+        width: clamp(120px, 13vw, 160px);
+        height: clamp(120px, 13vw, 160px);
+        padding: 10px;
+        right: 15px;
+        bottom: 100px;
+    }
+    
+    footer {
+        height: 111px;
+    }
+}
+
+/* Tablet Portrait (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .relogio {
+        width: clamp(280px, 35vw, 340px);
+        padding: 0.9rem;
+        top: 15px;
+        left: 15px;
+    }
+    
+    #hora {
+        font-size: clamp(2.4rem, 4.2vw, 3.2rem);
+    }
+    
+    #data {
+        font-size: clamp(0.9rem, 1.6vw, 1.2rem);
+    }
+    
+    #descricao-container {
+        max-width: clamp(350px, 52vw, 500px);
+        padding: 0.9rem;
+        bottom: 90px;
+        left: 15px;
+    }
+    
+    #descricao-container h2 {
+        font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    }
+    
+    #descricao-container p {
+        font-size: clamp(0.9rem, 1.6vw, 1.3rem);
+    }
+    
+    #qrcode {
+        width: clamp(100px, 12vw, 140px);
+        height: clamp(100px, 12vw, 140px);
+        padding: 8px;
+        right: 15px;
+        bottom: 90px;
+    }
+    
+    footer {
+        height: 111px;
+    }
+    
+    .mini-timer {
+        top: 10px;
+        right: 10px;
+        min-width: 180px;
+        padding: 10px 16px;
+    }
+}
+
+/* Mobile Landscape (568px - 767px) */
+@media (min-width: 568px) and (max-width: 767px) {
+    .relogio {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        width: clamp(220px, 40vw, 280px);
+        padding: 0.7rem;
+        min-width: 200px;
+    }
+    
+    #hora {
+        font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    }
+    
+    #data {
+        font-size: clamp(0.8rem, 1.4vw, 1rem);
+    }
+    
+    #descricao-container {
+        position: fixed;
+        bottom: 70px;
+        left: 10px;
+        right: 120px; /* Deixa espaço para o QR code */
+        max-width: none;
+        width: auto;
+        padding: 0.7rem;
+    }
+    
+    #descricao-container h2 {
+        font-size: clamp(1.1rem, 2vw, 1.5rem);
         margin-bottom: 0.3rem;
     }
     
     #descricao-container p {
-        font-size: clamp(0.7rem, 1.3vw, 1rem);
+        font-size: clamp(0.8rem, 1.4vw, 1.1rem);
         line-height: 1.3;
     }
     
     #qrcode {
-        width: clamp(60px, 10vw, 90px);
-        height: clamp(60px, 10vw, 90px);
+        position: fixed;
+        right: 10px;
+        bottom: 70px;
+        width: clamp(80px, 15vw, 100px);
+        height: clamp(80px, 15vw, 100px);
+        padding: 6px;
+    }
+    
+    footer {
+        height: 111px;
+    }
+    
+    .mini-timer {
+        top: 8px;
+        right: 8px;
+        min-width: 150px;
+        padding: 8px 12px;
+    }
+    
+    #mini-timer-text {
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile Portrait (320px - 567px) */
+@media (max-width: 567px) {
+    .container, .container-painel, .painel {
+        padding: 0 !important;
+        width: 100vw;
+        overflow-x: hidden;
+    }
+    
+    .relogio {
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        width: clamp(180px, 45vw, 240px);
+        padding: 0.5rem;
+        min-width: 160px;
+        border-radius: 12px;
+    }
+    
+    #hora {
+        font-size: clamp(1.4rem, 4vw, 2rem);
+        font-weight: 700;
+    }
+    
+    #data {
+        font-size: clamp(0.7rem, 1.8vw, 0.9rem);
+    }
+    
+    #descricao-container {
+        position: fixed;
+        bottom: 55px;
+        left: 8px;
+        right: 8px;
+        max-width: none;
+        width: auto;
+        padding: 0.5rem;
+        border-radius: 12px;
+        margin-bottom: 60px; /* Espaço para o QR code quando presente */
+    }
+    
+    #descricao-container h2 {
+        font-size: clamp(0.9rem, 2.2vw, 1.3rem);
+        margin-bottom: 0.2rem;
+        line-height: 1.2;
+    }
+    
+    #descricao-container p {
+        font-size: clamp(0.7rem, 1.6vw, 1rem);
+        line-height: 1.3;
+    }
+    
+    #qrcode {
+        position: fixed;
+        right: 50%;
+        transform: translateX(50%);
+        bottom: 110px;
+        width: clamp(60px, 18vw, 80px);
+        height: clamp(60px, 18vw, 80px);
         padding: 4px;
         border-radius: 8px;
     }
     
-    .noticia-rapida {
-        font-size: clamp(0.8rem, 2vh, 1.2rem) !important;
-        padding: 0.2rem 0.5rem !important;
+    footer {
+        height: 111px !important;
     }
     
-    footer {
-        height: 45px !important;
+    .mini-timer {
+        top: 5px;
+        right: 5px;
+        min-width: 130px;
+        padding: 6px 10px;
+        border-radius: 15px;
+    }
+    
+    #mini-timer-text {
+        font-size: 0.8rem;
+    }
+    
+    #mini-timer-close {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+    }
+    
+    /* Ajuste especial para quando há QR code */
+    .painel.has-qrcode #descricao-container {
+        bottom: 120px;
     }
 }
 
@@ -575,50 +858,165 @@ footer {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    align-items: flex-start !important;
+    align-items: center;
+}
 
-    input {
-        width: 100%;
-        box-sizing: border-box;
-    }
+.login-form input {
+    width: 100% !important;
+    box-sizing: border-box;
+    padding: 12px !important;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd !important;
+    border-radius: 6px !important;
+    font-size: 1rem !important;
+    font-family: 'Ubuntu', sans-serif !important;
+    background-color: #fff !important;
+    color: #333 !important;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333 !important;
+    width: 100%;
+    text-align: left;
+}
+
+.login-form .btn.green {
+    width: 100% !important;
+    max-width: 200px !important;
+    margin-top: 1rem !important;
+    background-color: #28a745 !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 24px !important;
+    border-radius: 6px !important;
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.login-form .btn.green:hover {
+    background-color: #218838 !important;
 }
 
 .link {
     width: 100vw;
+    position: relative;
+    z-index: 5;
 }
 
-#descricao-container {
-    position: absolute;
-    bottom: clamp(100px, 12vh, 125px);
-    left: clamp(15px, 3vw, 30px);
-    z-index: 10;
-    height: auto;
-    max-width: clamp(300px, 50vw, 800px);
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 25px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: clamp(0.8rem, 1.5vw, 1rem);
-    text-align: center;
-    backdrop-filter: blur(10px);
+/* ==================================================
+   MELHORIAS VISUAIS E ACESSIBILIDADE
+   ================================================== */
+
+/* Animações suaves */
+.relogio, #descricao-container, #qrcode {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-#descricao-container h2 {
-    color: white;
-    margin: 0 0 0.5rem 0;
-    font-size: clamp(1.2rem, 2.5vw, 2.5rem);
-    font-weight: 500;
-    line-height: 1.2;
+/* Hover effects para desktop */
+@media (hover: hover) {
+    #qrcode:hover {
+        transform: scale(1.02);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+    
+    .relogio:hover {
+/* Suporte para modo escuro do sistema */
+@media (prefers-color-scheme: dark) {
+    .relogio {
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    #descricao-container {
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .noticia-rapida {
+        --noticia-bg: rgba(0, 0, 0, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
 }
 
-#descricao-container p {
-    color: white;
-    margin: 0;
-    font-size: clamp(0.9rem, 1.8vw, 1.8rem);
-    line-height: 1.4;
-    opacity: 0.9;
+/* Otimização para telas de alta densidade */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .relogio, #descricao-container, #qrcode {
+        backdrop-filter: blur(20px);
+    }
+    
+    #data, #hora, #descricao-container h2, #descricao-container p {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Suporte para orientação paisagem em mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .relogio {
+        position: fixed;
+        top: 5px;
+        left: 5px;
+        width: clamp(160px, 25vw, 220px);
+        padding: 0.4rem;
+    }
+    
+    #hora {
+        font-size: clamp(1.2rem, 3vw, 1.8rem);
+    }
+    
+    #data {
+        font-size: clamp(0.6rem, 1.2vw, 0.8rem);
+    }
+    
+    #descricao-container {
+        position: fixed;
+        bottom: 5px;
+        left: clamp(180px, 27vw, 240px);
+        right: clamp(80px, 15vw, 120px);
+        padding: 0.4rem;
+        max-width: none;
+    }
+    
+    #descricao-container h2 {
+        font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+        margin-bottom: 0.1rem;
+    }
+    
+    #descricao-container p {
+        font-size: clamp(0.6rem, 1.2vw, 0.9rem);
+    }
+    
+    #qrcode {
+        position: fixed;
+        right: 5px;
+        bottom: 5px;
+        width: clamp(50px, 12vw, 70px);
+        height: clamp(50px, 12vw, 70px);
+        padding: 3px;
+    }
+    
+    footer {
+        display: none; /* Oculta footer em landscape mobile para economizar espaço */
+    }
+    
+    .mini-timer {
+        top: 3px;
+        right: 3px;
+        min-width: 120px;
+        padding: 4px 8px;
+    }
 }
 
 .green {
@@ -685,15 +1083,28 @@ footer {
 }
 
 #login-button {
-    width: auto;
-    padding: 10px 30px 10px 30px;
+    width: 100%;
+    max-width: 200px;
+    padding: 12px 24px;
     background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    align-self: center;
-    font-size: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    font-family: 'Ubuntu', sans-serif;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#login-button:hover {
+    background-color: #218838;
+}
+
+#login-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
 }
 
 .login-subtitle {
@@ -701,6 +1112,42 @@ footer {
     font-size: clamp(1.2rem, 2.5vw, 1.8rem);
     margin-bottom: 1rem;
     color: #555;
+}
+
+/* ==================================================
+   RESPONSIVIDADE DO LOGIN
+   ================================================== */
+
+@media (max-width: 768px) {
+    .login-form {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .login-title {
+        font-size: clamp(1.3rem, 4vw, 1.8rem);
+    }
+    
+    .login-subtitle {
+        font-size: clamp(1rem, 3vw, 1.4rem);
+    }
+    
+    #login-button {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-form {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+    
+    .login-form input {
+        padding: 10px !important;
+        font-size: 0.9rem !important;
+    }
 }
 
 /* Timer Minimizado do Intervalo */

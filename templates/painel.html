@@ -6,8 +6,26 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="{{ url_for('static', filename='painel-config.js') }}"></script>
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <title>Painel - TV Corporativa SESI</title>
+    
+    <!-- Definir variáveis ANTES do script principal para melhor compatibilidade -->
+    <script>
+        // Configurações globais para compatibilidade com Chrome
+        window.TV_CORPORATIVA_CONFIG = {
+            showAviso: {{ show_aviso|tojson|default('false') }},
+            mensagemStatus: {{ mensagem_status|tojson|default('""') }},
+            tempoRestante: {{ tempo_restante_segundos|default('null') }},
+            tipoEvento: {{ tipo_evento|tojson|default('""') }},
+            debug: true
+        };
+        
+        // Compatibilidade com código legacy
+        window.SHOW_AVISO = {{ show_aviso|tojson|default('false') }};
+        
+        console.log('🏁 Configurações carregadas:', window.TV_CORPORATIVA_CONFIG);
+    </script>
+    
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
     <main>
@@ -25,6 +43,14 @@
             </div>
         </div>
     </main>
+
+    <!-- Timer Minimizado do Intervalo -->
+    <div id="mini-timer" class="mini-timer hidden">
+        <div class="mini-timer-content">
+            <span id="mini-timer-text">Intervalo: --:--</span>
+            <button id="mini-timer-close">&times;</button>
+        </div>
+    </div>
     
     <footer>
         <div class="noticia-rapida">
@@ -34,14 +60,12 @@
             {% endfor %}
             <!-- Integrar créditos como parte das notícias -->
             {% if noticia %}
-                <span class="noticia-text" style="font-style: italic; opacity: 0.8;">|</span>
-            {% else %}
-                <span class="noticia-text" style="font-style: italic; opacity: 0.8;">|</span>
+                <span class="noticia-text" style="font-style: italic; opacity: 0.8;"> • </span>
             {% endif %}
         </div>
     </footer>
 
-    <!-- Configuração do painel (sem erros de linting) -->
+    <!-- Configuração do painel -->
     <script>
         // Inicializar configurações do painel
         inicializarPainel({
@@ -64,44 +88,6 @@
         window.SHOW_AVISO = {{ show_aviso|tojson|default('false') }};
         window.eventosPainel = window.painelConfig.eventos;
     </script>
-<<<<<<< HEAD
-    <title>Painel</title>
-</head>
-<body>
-    <main>
-        <div class="container painel" id="painel-principal">
-            <div id="midia-container"></div>
-            <div class="relogio">
-                <h1 id="data"></h1>
-                <h1 id="hora"></h1>
-            </div>
-            <div class="link">
-                <div class="descricao" id="descricao-container" style="display: none;"></div>
-                <div id="qrcode" style="display: none;"></div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Timer Minimizado do Intervalo -->
-    <div id="mini-timer" class="mini-timer hidden">
-        <div class="mini-timer-content">
-            <span id="mini-timer-text">Intervalo: --:--</span>
-            <button id="mini-timer-close">&times;</button>
-        </div>
-    </div>
-
-    <footer>
-        <div class="noticia-rapida">
-            {% for n in noticia %}
-                <span class="noticia-text">{{ n.conteudo }}</span>
-            {% endfor %}
-            <!-- Integrar créditos como parte das notícias -->
-            {% if noticia %}
-                <span class="noticia-text" style="font-style: italic; opacity: 0.8;"> • </span>
-            {% endif %}
-           
-        </div>
-    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -154,7 +140,7 @@
                     }
                     
                     const minutes = Math.floor(timeLeft / 60000);
-                    const seconds = Math.floor((timeLeft % 60000) / 1000);
+             Hey, Cortana. Hey, Cortana. Hey, Cortana.       const seconds = Math.floor((timeLeft % 60000) / 1000);
                     const timerData = JSON.parse(localStorage.getItem('intervaloTimer'));
                     
                     miniTimerText.textContent = `${timerData.status}: ${minutes}m ${seconds.toString().padStart(2, '0')}s`;
@@ -173,7 +159,5 @@
             checkAndShowMiniTimer();
         });
     </script>
-=======
->>>>>>> dedf6ae3f6aaa341d2a836277664d0f41012f449
 </body>
 </html>

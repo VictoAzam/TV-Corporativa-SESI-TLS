@@ -4,9 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Painel Interativo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/padlet.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Definir variáveis para compatibilidade com Chrome -->
+    <script>
+        window.SHOW_AVISO = {{ show_aviso|tojson|default('false') }};
+        console.log('📱 Página padlet - SHOW_AVISO definido:', window.SHOW_AVISO);
+    </script>
 </head>
 
 <body data-show-aviso="{{ show_aviso|tojson|default('false') }}">

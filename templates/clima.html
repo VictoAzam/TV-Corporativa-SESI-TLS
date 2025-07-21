@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/clima.css') }}" />
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -10,6 +13,7 @@
     <!-- Definir variáveis globais ANTES de carregar o script principal -->
     <script>
         window.SHOW_AVISO = {{ show_aviso|tojson|default(false) }};
+        console.log('🌤️  Página clima - SHOW_AVISO definido:', window.SHOW_AVISO);
         {% if evento and evento|length > 0 and evento[0].link %}
             window.eventoLink = "{{ evento[0].link }}";
         {% endif %}
