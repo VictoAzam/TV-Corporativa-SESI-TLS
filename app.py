@@ -428,6 +428,7 @@ def fetch_and_cache_weather():
     
     url = f'https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units=metric&lang=pt_br'
     
+    
     try:
         print(f"🔄 Fazendo requisição para: {url[:50]}...")
         response = requests.get(url, verify=False, timeout=30)
@@ -539,8 +540,8 @@ with app.app_context():
         
         # Verificar e criar usuário administrador padrão
         try:
-            if not Usuario.query.filter_by(email='admin@example.com').first():
-                admin_user = Usuario(nome='Admin', email='admin@example.com', senha='admin')
+            if not Usuario.query.filter_by(email='marketingsesitls@sesims.com').first():
+                admin_user = Usuario(nome='Admin', email='marketingsesitls@sesims.com', senha='gff$@h12dh')
                 db.session.add(admin_user)
                 db.session.commit()
                 print("✅ Usuário administrador criado")
@@ -1570,6 +1571,8 @@ def clima():
     erro_msg = None
     noticia = Noticia.query.filter_by(status='ativa').all()
     evento = Evento.query.filter_by(status='ativo').all()
+    noticia = Noticia.query.filter_by(status='ativa').all()
+    evento = Evento.query.filter_by(status='ativo').all()
 
     if not os.path.exists(CACHE_FILE):
         print(f"❌ Arquivo {CACHE_FILE} não existe")
@@ -1618,6 +1621,43 @@ def clima():
         evento=evento,
         **status_intervalo
     )
+
+@app.route('/testar_clima')
+@login_required
+def testar_clima():
+    """
+    Rota para testar a API do clima manualmente (apenas para administradores)
+    """
+    try:
+        print("🧪 Teste manual da API do clima iniciado...")
+        fetch_and_cache_weather()
+        
+        # Verificar se o arquivo foi criado
+        cache_path = os.path.join(os.path.dirname(__file__), CACHE_FILE)
+        if os.path.exists(cache_path):
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                dados = json.load(f)
+            
+            resultado = {
+                'sucesso': True,
+                'mensagem': 'Dados do clima atualizados com sucesso!',
+                'cidade': dados['city']['name'],
+                'temperatura': f"{dados['list'][0]['main']['temp']:.1f}°C",
+                'condicao': dados['list'][0]['weather'][0]['description'],
+                'timestamp': datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+            }
+        else:
+            resultado = {
+                'sucesso': False,
+                'mensagem': 'Arquivo de cache não foi criado. Verifique a API key.'
+            }
+    except Exception as e:
+        resultado = {
+            'sucesso': False,
+            'mensagem': f'Erro ao testar API: {str(e)}'
+        }
+    
+    return jsonify(resultado)
 
 
 @app.route('/configurar_dispositivo_exemplo')

@@ -243,10 +243,29 @@ document.addEventListener("DOMContentLoaded", function() {
 
             if (ev.link) {
                 qrcodeDiv.style.display = 'flex';
+                qrcodeDiv.innerHTML = ''; // Limpar QR code anterior
+                
+                // Calcular tamanho do QR code baseado no tamanho da tela
+                const screenWidth = window.innerWidth;
+                let qrSize = 128; // Tamanho padrão
+                
+                if (screenWidth > 1600) {
+                    qrSize = 180; // Telas muito grandes
+                } else if (screenWidth > 1200) {
+                    qrSize = 150; // Telas grandes
+                } else if (screenWidth <= 768) {
+                    qrSize = 100; // Telas médias
+                } else if (screenWidth <= 480) {
+                    qrSize = 80;  // Telas pequenas
+                }
+                
                 new QRCode(qrcodeDiv, {
                     text: ev.link,
-                    width: 128,
-                    height: 128
+                    width: qrSize,
+                    height: qrSize,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M
                 });
             } else {
                 qrcodeDiv.style.display = 'none';
@@ -258,6 +277,18 @@ document.addEventListener("DOMContentLoaded", function() {
         // Atualiza o índice para o próximo ciclo
         idx = (idx + 1) % window.eventosPainel.length;
         localStorage.setItem('idxEventoPainel', idx);
+        
+        // Listener para redimensionamento da janela (recriar QR code se necessário)
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // Re-mostrar o evento atual para recalcular o QR code
+                const currentIdx = Number(localStorage.getItem('idxEventoPainel') || 0) - 1;
+                const realIdx = currentIdx < 0 ? window.eventosPainel.length - 1 : currentIdx;
+                mostrarEvento(realIdx);
+            }, 300); // Debounce de 300ms
+        });
     }
 });
 

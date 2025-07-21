@@ -41,6 +41,7 @@
         <div class="noticia-rapida">
             {% for n in noticia %}
                 <span class="noticia-text">{{ n.conteudo }}</span>
+                {% if not loop.last %} • {% endif %}
             {% endfor %}
         </div>
     </footer>

@@ -24,6 +24,8 @@
 
 html {
     font-size: clamp(14px, 1.2vw, 22px);
+    width: 100%;
+    height: 100%;
 }
 
 .relogio {
@@ -32,7 +34,8 @@ html {
     left: 20px;
     z-index: 10;
     height: auto;
-    width: 420px;
+    width: clamp(300px, 25vw, 420px);
+    min-width: 280px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 25px;
     display: flex;
@@ -41,6 +44,7 @@ html {
     align-items: center;
     padding: 1rem;
     text-align: center;
+    backdrop-filter: blur(10px);
 }
 
 #data {
@@ -73,36 +77,48 @@ body {
   background-color: var(--primary-bg);
   color: var(--white);
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow-x: hidden;
   background-color: #1c1c1c;
+  margin: 0;
+  padding: 0;
 }
 
-.container {
+.container-painel {
   text-align: center;
-  width: 100%;
-  max-width: 1123px;
+  width: 100vw;
+  min-height: 100vh;
+  max-width: 100%;
   padding: 2rem 1rem;
   background-color: #1c1c1c;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
 }
 
 .box {
   background: linear-gradient(to bottom, var(--accent-red-dark), var(--accent-red));
   border-radius: var(--box-radius);
-  padding: 3.5rem 2rem;
-  margin-bottom: 2.5rem;
-  width: 100%;
+  padding: 3rem 2rem;
+  margin: 2rem auto;
+  width: 90%;
   max-width: 1100px;
-  min-height: 350px;
+  min-height: clamp(250px, 30vh, 400px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   box-shadow: var(--box-shadow);
   transition: box-shadow 0.2s;
+  position: relative;
+  z-index: 5;
 }
 
 .box h1 {
@@ -148,25 +164,79 @@ footer {
   margin-left: 100vw;
 }
 
-/* Responsividade */
+/* Responsividade para telas muito grandes */
+@media (min-width: 1600px) {
+    .relogio {
+        width: clamp(400px, 20vw, 500px);
+        padding: 1.5rem;
+    }
+    
+    #hora {
+        font-size: clamp(4rem, 5vw, 6rem);
+    }
+    
+    #data {
+        font-size: clamp(1.5rem, 2vw, 2.5rem);
+    }
+    
+    .box {
+        max-width: 1200px;
+        min-height: clamp(400px, 35vh, 500px);
+        padding: 4rem 3rem;
+    }
+    
+    .box h1 {
+        font-size: clamp(2.5rem, 4vw, 4rem);
+    }
+    
+    .tempo {
+        font-size: clamp(4rem, 6vw, 7rem);
+    }
+    
+    .noticia-rapida {
+        font-size: clamp(2.5rem, 3.5vh, 4rem);
+    }
+}
+
+/* Responsividade Melhorada */
+@media (max-width: 1200px) {
+  .relogio {
+    width: clamp(250px, 20vw, 350px);
+  }
+  .box {
+    width: 95%;
+    padding: 2.5rem 1.5rem;
+  }
+}
+
 @media (max-width: 900px) {
+  .container-painel {
+    padding: 1rem 0.5rem;
+  }
   .box {
     padding: 2rem 1rem;
-    min-height: 250px;
-    max-width: 95vw;
+    min-height: clamp(200px, 25vh, 280px);
+    width: 96%;
+    margin: 1rem auto;
   }
   .relogio {
-    width: 220px;
-    height: 90px;
-    top: 1rem;
-    left: 1rem;
+    position: relative;
+    width: 90%;
+    max-width: 300px;
+    margin: 1rem auto 2rem auto;
+    top: 0;
+    left: 0;
+  }
+  .box h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
   }
   .tempo {
-    font-size: 2.5em;
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
   }
 }
 
 @media (max-width: 600px) {
+<<<<<<< HEAD
 /* Responsividade Melhorada */
 @media (max-width: 1024px) {
   .relogio {
@@ -177,9 +247,39 @@ footer {
   .box {
     margin: 10px;
     padding: 1.5rem;
+=======
+  .container-painel {
+    padding: 0.5rem 0.2rem;
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding-top: 2rem;
+  }
+  .box {
+    width: 98%;
+    padding: 1.5rem 0.8rem;
+    min-height: clamp(180px, 20vh, 220px);
+    margin: 0.5rem auto;
+  }
+  .box h1 {
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+    margin-bottom: 0.8rem;
+  }
+  .tempo {
+    font-size: clamp(2rem, 5vw, 2.8rem);
+  }
+  .relogio {
+    width: 95%;
+    max-width: 250px;
+    padding: 0.8rem;
+    margin: 0.5rem auto 1rem auto;
+  }
+  #hora {
+    font-size: clamp(2rem, 5vw, 3rem);
+>>>>>>> dedf6ae3f6aaa341d2a836277664d0f41012f449
   }
   
   .noticia-rapida {
+<<<<<<< HEAD
     padding: 0.4rem 1rem;
     font-size: 1.1rem;
   }
@@ -198,9 +298,24 @@ footer {
     max-width: 350px;
     margin: 0 auto 20px;
     padding: 0.8rem;
+=======
+    font-size: clamp(1.2rem, 3vh, 2.2rem);
+    padding: 0.3rem 1rem;
+  }
+  footer {
+    height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container-painel {
+    padding: 0.2rem 0.1rem;
+    padding-top: 1rem;
+>>>>>>> dedf6ae3f6aaa341d2a836277664d0f41012f449
   }
   
   .box {
+<<<<<<< HEAD
     margin: 8px;
     padding: 1.2rem;
     border-radius: 20px;
@@ -213,15 +328,47 @@ footer {
   
   #hora {
     font-size: 1.3rem;
+=======
+    width: 99%;
+    padding: 1rem 0.5rem;
+    min-height: clamp(150px, 18vh, 180px);
+    border-radius: 15px;
+  }
+  .box h1 {
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    word-break: break-word;
+    line-height: 1.2;
+  }
+  .tempo {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+  }
+  .relogio {
+    width: 98%;
+    max-width: 200px;
+    padding: 0.5rem;
+    border-radius: 15px;
+  }
+  #hora {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+  }
+  #data {
+    font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+>>>>>>> dedf6ae3f6aaa341d2a836277664d0f41012f449
   }
   
   .noticia-rapida {
+<<<<<<< HEAD
     font-size: 1.1rem;
     padding: 0.4rem 0.8rem;
     line-height: 1.4;
+=======
+    font-size: clamp(1rem, 2.5vh, 1.5rem);
+    padding: 0.2rem 0.5rem;
+>>>>>>> dedf6ae3f6aaa341d2a836277664d0f41012f449
   }
   
   footer {
+<<<<<<< HEAD
     height: 80px;
     padding: 0.5rem;
   }
@@ -310,5 +457,8 @@ footer {
       height: 50px;
       font-size: 0.85rem;
     }
+=======
+    height: 45px;
+>>>>>>> dedf6ae3f6aaa341d2a836277664d0f41012f449
   }
 }
